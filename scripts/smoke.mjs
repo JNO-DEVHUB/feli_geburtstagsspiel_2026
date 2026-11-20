@@ -40,12 +40,22 @@ try {
   await page.click('.card-go');
   await waitStep('trailer');
   await page.waitForTimeout(1500);
-  await shot('trailer-1');
+  await shot('trailer-praesentiert');
   await page.waitForTimeout(2600);
-  await shot('trailer-2');
-  await page.waitForTimeout(2600);
-  await shot('trailer-3');
-  await page.click('.trailer-skip');
+  await shot('trailer-titel');
+  for (let c = 0; c < 6; c++) {
+    await page.waitForFunction((i) => window.document.querySelector('.t-chapter.c' + i), c, { timeout: 8000 });
+    await page.waitForTimeout(c === 0 ? 650 : 1050);
+    await shot(`trailer-k${c + 1}`);
+  }
+  await page.waitForSelector('.t-end', { timeout: 9000 });
+  await shot('trailer-ende');
+  if (process.env.FULL_TRAILER) await page.click('.t-end .btn');
+  else {
+    await page.evaluate(() => window.__feli.go('trailer'));
+    await page.waitForSelector('.trailer-skip:not([hidden])', { timeout: 6000 });
+    await page.click('.trailer-skip');
+  }
   await waitStep('prolog');
   await page.waitForTimeout(900);
   await shot('prolog');
@@ -88,31 +98,32 @@ try {
   }
 
   await waitStep('finale');
-  await page.waitForTimeout(800);
+  await page.waitForTimeout(1500);
+  await shot('finale-puzzle');
+  await page.waitForSelector('.answers:not(.waiting) .answer', { timeout: 12000 });
   await shot('finale-frage');
-  await page.evaluate(() => window.__feliFinale?.skipTo?.('quiz'));
-  const wrong = page.locator('.answer', { hasText: 'Franzbrötchen' });
-  if (await wrong.count()) {
-    await wrong.click();
-    await page.waitForTimeout(700);
-    await shot('finale-falsch');
-    await page.locator('.answer', { hasText: 'Wochenende' }).click();
-    await page.waitForTimeout(900);
-    await shot('finale-richtig');
-  }
-  // Kanone und Rubbel-Konfetti (falls schon gebaut): wischen, bis der Gutschein frei liegt.
-  for (let i = 0; i < 40 && (await step()) === 'finale'; i++) {
-    if (await page.locator('.scratch').count()) {
-      if (i === 0 || !(await page.locator('.scratch.shot').count())) {
-        await page.waitForTimeout(600);
-      }
-      const y = 120 + ((i * 53) % 620);
-      await page.mouse.move(20, y);
-      await page.mouse.down();
-      await page.mouse.move(370, y + 30, { steps: 8 });
-      await page.mouse.up();
-      if (i === 4) await shot('finale-konfetti');
-    } else await page.waitForTimeout(500);
+  await page.locator('.answer', { hasText: 'dritter Kater' }).click();
+  await page.waitForTimeout(600);
+  await shot('finale-falsch');
+  await page.waitForTimeout(1500);
+  await page.locator('.answer', { hasText: 'Wochenende' }).click();
+  await page.waitForTimeout(700);
+  await shot('finale-richtig');
+  await page.waitForSelector('.cannon-scene.lit', { timeout: 8000 });
+  await page.waitForTimeout(900);
+  await shot('finale-kanone');
+  await page.waitForSelector('.scratch.shot', { timeout: 8000 });
+  await page.waitForTimeout(900);
+  await shot('finale-konfetti');
+  // Konfetti wegwischen wie ein Rubbellos, bis der Rest von selbst fällt.
+  for (let i = 0; i < 30 && (await step()) === 'finale'; i++) {
+    const y = 60 + i * 56;
+    if (y > 800) break;
+    await page.mouse.move(20, y);
+    await page.mouse.down();
+    await page.mouse.move(370, y + 20, { steps: 6 });
+    await page.mouse.up();
+    if (i === 5) await shot('finale-rubbeln');
   }
   await waitStep('voucher');
   await page.waitForTimeout(900);
