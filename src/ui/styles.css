@@ -966,6 +966,13 @@ button {
   margin-left: -3%;
   width: 46%;
 }
+.story-horse {
+  position: absolute;
+  right: -12%;
+  bottom: 0;
+  width: 98%;
+  pointer-events: none;
+}
 .story-bubble {
   position: absolute;
   left: 5%;

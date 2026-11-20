@@ -4,7 +4,8 @@
 
 // Zeilen einer Story-Szene:
 //   { who: 'janni', text }                Sprechblase
-//   { note: '…', word?: 'PLONK!', enter?: ['franks'], sfx?: 'wieher' }   Regieanweisung mit optionalem Comic-Wort und Auftritt
+//   { note: '…', word?: 'PLONK!', enter?: ['franks'], sfx?: 'wieher', horse?: true }   Regieanweisung mit optionalem
+//       Comic-Wort, Auftritt von Figuren und dem Hochzeitspferd, das ins Bild trabt
 
 export const TITLE = 'Felis große Reise';
 
@@ -39,7 +40,7 @@ export const PROLOG = {
     { who: 'janni', text: 'Kleines Problem: Der Zug fährt in 10 Minuten ab Südkreuz. Und ganz Berlin steht im Stau.' },
     { who: 'janni', text: 'Taxi? Steckt fest. Die BVG? Streikt. Die Ringbahn? Laub auf den Gleisen.' },
     { who: 'janni', text: 'Zum Glück kennen wir da jemanden …' },
-    { note: 'Das Hochzeitspferd trabt ins Bild.', word: 'WIEHER!', sfx: 'wieher', enter: ['feli'] },
+    { note: '', word: 'WIEHER!', sfx: 'wieher', horse: true },
     { who: 'janni', text: 'Ab zum Südkreuz! Du lenkst, ich schrei.' },
   ],
 };

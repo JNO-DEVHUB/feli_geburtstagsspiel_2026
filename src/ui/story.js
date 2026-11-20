@@ -1,6 +1,7 @@
 // Story-Szene: Hintergrund, Janni als Moderator unten links, Sprechblasen mit Schreibmaschinen-Effekt.
 // Tippen zeigt erst die ganze Blase, dann die nächste.
 
+import { createGespann } from '../games/runner/horse.js';
 import { charEl } from '../render/chars.js';
 import { h } from './dom.js';
 import { popWord } from './fx.js';
@@ -30,6 +31,47 @@ export function mountStory(root, app, { bg, lines, cast = [], outfits = {}, titl
   };
   cast.forEach(enter);
 
+  // Das Hochzeitspferd trabt von rechts ins Bild (mit Feli im Sattel), steigt kurz und bleibt dann stehen.
+  // Gezeichnet mit dem Pferd aus dem Runner, gespiegelt, damit es zu Janni schaut.
+  let horseRaf = 0;
+  function trotIn() {
+    if (horseRaf) return;
+    const canvas = h('canvas.story-horse');
+    scene.insertBefore(canvas, janni);
+    const U = { w: 300, h: 250 }; // Zeichenfläche in Pferde-Einheiten
+    const dpr = Math.min(3, globalThis.devicePixelRatio || 1);
+    const cssW = canvas.clientWidth || 260;
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssW * (U.h / U.w) * dpr);
+    const g = canvas.getContext('2d');
+    const gespann = createGespann(assets, { riders: { feli: true, janni: false } });
+    const w = { player: { grounded: true, alt: 0, v: 0, spin: 0 }, speed: 250, phase: 'run', stopped: false };
+    const IN = 1.7; // Sekunden bis zum Ziel
+    let t = 0;
+    let last = 0;
+    const frame = (now) => {
+      horseRaf = requestAnimationFrame(frame);
+      const dt = last ? Math.min(0.05, (now - last) / 1000) : 1 / 60;
+      last = now;
+      t += dt;
+      const k = Math.min(1, t / IN);
+      const ease = 1 - (1 - k) ** 2;
+      // Trab, Bremsen, Steigen, Stehen
+      if (t < IN) w.speed = 250 * (1 - ease * 0.6);
+      else if (t < IN + 0.35) Object.assign(w, { phase: 'won', stopped: false });
+      else if (t < IN + 1.6) Object.assign(w, { phase: 'won', stopped: true });
+      else Object.assign(w, { phase: 'run', stopped: false, speed: 0 });
+      if (gespann.update(dt, w) && t < IN) audio.play('hoof');
+      canvas.style.transform = `translateX(${(1 - ease) * 115}%)`;
+      g.setTransform(1, 0, 0, 1, 0, 0);
+      g.clearRect(0, 0, canvas.width, canvas.height);
+      const s = canvas.width / U.w;
+      g.setTransform(-s, 0, 0, s, canvas.width, 0); // gespiegelt
+      gespann.draw(g, U.w * 0.52, U.h - 12, w);
+    };
+    horseRaf = requestAnimationFrame(frame);
+  }
+
   let index = -1;
   let timer = 0;
   let full = '';
@@ -45,10 +87,11 @@ export function mountStory(root, app, { bg, lines, cast = [], outfits = {}, titl
 
   function show(line) {
     for (const who of line.enter ?? []) enter(who);
+    if (line.horse) trotIn();
     if (line.sfx) audio.play(line.sfx);
     if (line.note !== undefined) {
       bubble.hidden = true;
-      note.hidden = false;
+      note.hidden = !line.note; // leere Regieanweisung: nur die Aktion selbst (z. B. das Pferd) zeigen
       note.textContent = line.note;
       janni.classList.remove('talking');
       if (line.word) {
@@ -113,6 +156,7 @@ export function mountStory(root, app, { bg, lines, cast = [], outfits = {}, titl
   return {
     destroy() {
       clearInterval(timer);
+      cancelAnimationFrame(horseRaf);
       scene.remove();
     },
   };

@@ -96,7 +96,8 @@ function ribbon(g, x0, y0, x1, y1, x2, y2, x3, y3, wide) {
   g.closePath();
 }
 
-export function createGespann(assets) {
+// riders: wer aufsitzt. Im Spiel beide; die Story-Szene zeigt das Pferd z. B. nur mit Feli.
+export function createGespann(assets, { riders = { feli: true, janni: true } } = {}) {
   const s = {
     t: 0,
     run: 0,
@@ -393,6 +394,7 @@ export function createGespann(assets) {
       const post = grounded ? -Math.abs(Math.sin(s.run + 0.7)) * 2.2 * (1 - s.brace) : 0;
       const hj = s.heads[1];
       const hfeli = s.heads[0];
+      if (riders.janni) {
       g.save();
       g.translate(0, post);
       limb(g, [-34, -103, -19, -86, -27, -64], 10, BEIGE, 3);
@@ -415,9 +417,11 @@ export function createGespann(assets) {
       poly(g, [-36, -152, -25, -158, -25, -146], ORANGE, 2.4);
       disc(g, -36, -152, 3, '#FF9A45', 2);
       g.restore();
+      }
 
       // --- Feli (vorn) ---
       const post2 = grounded ? -Math.abs(Math.sin(s.run + 0.2)) * 2.2 * (1 - s.brace) : 0;
+      if (riders.feli) {
       g.save();
       g.translate(0, post2);
       limb(g, [8, -103, 25, -87, 18, -64], 9.5, WHITE, 3);
@@ -437,9 +441,13 @@ export function createGespann(assets) {
       stroke(g, [9, -128, 9, -106], INK, 1.6);
       disc(g, 17, -132, 3.4, ORANGE, 1.8);
       g.restore();
+      }
       // Jannis Arm hält Feli fest
-      limb(g, [-27, -146 + post, -12, -126 + post, 4, -120 + post2], 8.5, BEIGE, 2.8);
-      disc(g, 5, -120 + post2, 4.8, SKIN, 2.4);
+      if (riders.janni && riders.feli) {
+        limb(g, [-27, -146 + post, -12, -126 + post, 4, -120 + post2], 8.5, BEIGE, 2.8);
+        disc(g, 5, -120 + post2, 4.8, SKIN, 2.4);
+      }
+      if (riders.feli) {
       // Felis Arm mit Zügel
       g.beginPath();
       g.moveTo(40, -117 + post2);
@@ -451,6 +459,7 @@ export function createGespann(assets) {
       disc(g, 40, -118 + post2, 4.6, SKIN, 2.4);
       limb(g, [8, -143 + post2, 8, -149 + post2 + hfeli.y * 0.4], 7, SKIN, 2.4);
       headImg(g, 'feli', 8, -148 + post2, 116, hfeli);
+      }
 
       g.restore();
     },
