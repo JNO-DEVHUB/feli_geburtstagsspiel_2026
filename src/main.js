@@ -59,23 +59,14 @@ onTap(mute, () => {
   paintMute();
   audio.play('tap');
 });
-window.addEventListener('pointerdown', () => audio.unlock(), { capture: true, passive: true });
+// iOS gibt den Ton erst bei einer echten Nutzergeste frei (touchend/click), Android schon bei pointerdown.
+for (const type of ['pointerdown', 'touchend', 'click']) window.addEventListener(type, () => audio.unlock(), { capture: true, passive: true });
 document.addEventListener('visibilitychange', () => (document.hidden ? audio.suspend() : audio.resume()));
 
-// Kein Doppeltipp-Zoom, kein Pinch-Zoom der Seite, kein Kontextmenü bei langem Druck.
+// Kein Pinch-Zoom der Seite, kein Kontextmenü bei langem Druck. Den Doppeltipp-Zoom schaltet
+// touch-action: manipulation im CSS ab (ein eigener Tipp-Filter würde schnelles Tippen verschlucken).
 document.addEventListener('gesturestart', (e) => e.preventDefault());
 document.addEventListener('contextmenu', (e) => e.preventDefault());
-let lastTouchEnd = 0;
-document.addEventListener(
-  'touchend',
-  (e) => {
-    const now = Date.now();
-    if (now - lastTouchEnd < 320 && !e.target.closest('.allow-fast-taps')) e.preventDefault();
-    lastTouchEnd = now;
-  },
-  { passive: false },
-);
-
 // --- Ablauf ---
 let screen = null;
 let current = 'card';

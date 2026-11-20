@@ -30,7 +30,7 @@ export function createAudio() {
       const d = noiseBuf.getChannelData(0);
       for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
     }
-    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+    if (ctx.state !== 'running') ctx.resume().catch(() => {});
     return true;
   }
 
@@ -188,7 +188,7 @@ export function createAudio() {
       if (ctx && ctx.state === 'running') ctx.suspend().catch(() => {});
     },
     resume() {
-      if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
+      if (ctx && ctx.state !== 'running') ctx.resume().catch(() => {});
     },
   };
 }
