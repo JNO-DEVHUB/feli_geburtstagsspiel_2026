@@ -1,1 +1,529 @@
-/* Stile für das Spiel wordle */
+/* Perlen-Rätsel (Kapitel 4): Wordle mit Freundschaftsarmband.
+   Aufbau von oben nach unten: Raster (6 Armbänder), Jannis Tipp, Perlen-Tastatur.
+   Alle Maße in em. Das Raster bekommt seine Schriftgröße von game.js, damit es die freie Höhe nutzt. */
+
+.g-wordle {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  /* oben rechts sitzt der Stumm-Schalter der App */
+  padding-top: calc(2.7em + env(safe-area-inset-top, 0px));
+  color: var(--cream);
+  font-family: var(--body);
+}
+
+/* --- Raster --- */
+.g-wordle-top {
+  flex: 1 1 0;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+}
+.g-wordle-board {
+  display: grid;
+  gap: 0.62em;
+  padding: 0.6em 0.45em;
+  border-radius: 1.4em;
+  background: rgba(34, 20, 14, 0.7);
+  border: 0.1em solid rgba(255, 244, 226, 0.22);
+  box-shadow: 0 0.3em 1em rgba(0, 0, 0, 0.35);
+}
+.g-wordle-row {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: 0.5em;
+  padding: 0 1.25em;
+}
+/* die Schnur: läuft links und rechts über die Perlen hinaus */
+.g-wordle-row::before {
+  content: '';
+  position: absolute;
+  left: 0.25em;
+  right: 0.25em;
+  top: 50%;
+  height: 0.5em;
+  transform: translateY(-50%);
+  border: 0.09em solid var(--ink);
+  border-radius: 0.25em;
+  background: repeating-linear-gradient(115deg, #fff4e2 0 0.3em, #d9b78a 0.3em 0.44em);
+  opacity: 0.55;
+  transition: opacity 0.2s;
+}
+.g-wordle-row.active::before,
+.g-wordle-row.done::before,
+.g-wordle-solution .g-wordle-row::before {
+  opacity: 1;
+}
+.g-wordle-knot {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 0.7em;
+  height: 0.7em;
+  margin-top: -0.35em;
+  border: 0.09em solid var(--ink);
+  border-radius: 50%;
+  background: #f3dcb6;
+}
+.g-wordle-knot:last-child {
+  left: auto;
+  right: 0;
+}
+.g-wordle-row.gone {
+  visibility: hidden;
+}
+
+/* --- Perlen --- */
+.g-wordle-bead {
+  position: relative;
+  flex: 0 0 auto;
+  width: 3.4em;
+  height: 3.4em;
+  display: grid;
+  place-items: center;
+  border: 0.16em dashed rgba(255, 244, 226, 0.4);
+  border-radius: 50%;
+  background: #4a372d;
+  box-shadow: inset 0 0.22em 0.35em rgba(0, 0, 0, 0.45);
+}
+.g-wordle-bead b {
+  font: 400 1.95em/1 var(--display);
+  padding-top: 0.14em;
+  color: var(--ink);
+}
+.g-wordle-row.active .g-wordle-bead {
+  border-color: rgba(255, 244, 226, 0.85);
+}
+.g-wordle-row.active .g-wordle-bead.cursor {
+  border-style: solid;
+  border-color: var(--gold);
+  animation: g-wordle-cursor 0.7s ease-in-out infinite alternate;
+}
+.g-wordle-bead.filled,
+.g-wordle-bead.hit,
+.g-wordle-bead.present,
+.g-wordle-bead.miss {
+  border: 0.16em solid var(--ink);
+  box-shadow:
+    0 0.2em 0 rgba(20, 10, 6, 0.6),
+    inset 0 -0.3em 0.35em rgba(90, 50, 20, 0.28);
+}
+.g-wordle-bead.filled {
+  background: radial-gradient(circle at 50% 38%, #fffaf0, #efd6ab);
+}
+/* Glanzlicht */
+.g-wordle-bead.filled::before,
+.g-wordle-bead.hit::before,
+.g-wordle-bead.present::before {
+  content: '';
+  position: absolute;
+  left: 17%;
+  top: 11%;
+  width: 26%;
+  height: 17%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  transform: rotate(-28deg);
+}
+/* Orange = richtige Stelle, dazu ein Stern-Glanz */
+.g-wordle-bead.hit {
+  background: radial-gradient(circle at 50% 36%, #ffb060, var(--orange) 62%, var(--orange-dark));
+}
+/* Lila = kommt vor, dazu ein Ring */
+.g-wordle-bead.present {
+  background: radial-gradient(circle at 50% 36%, #b995ee, var(--purple) 62%, #6a3fa8);
+}
+/* Grau = kommt nicht vor, matt und ohne Zeichen */
+.g-wordle-bead.miss {
+  background: #7d736c;
+  box-shadow:
+    0 0.2em 0 rgba(20, 10, 6, 0.6),
+    inset 0 -0.3em 0.35em rgba(0, 0, 0, 0.25);
+}
+.g-wordle-bead.hit b,
+.g-wordle-bead.present b {
+  color: #fff;
+  text-shadow: 0 0.07em 0 rgba(59, 42, 34, 0.55);
+}
+.g-wordle-bead.miss b {
+  color: #e6ddd5;
+}
+.g-wordle-bead.hit::after,
+.g-wordle-key.hit::after {
+  content: '';
+  position: absolute;
+  right: 5%;
+  top: 3%;
+  width: 0.95em;
+  height: 0.95em;
+  background: #fff6c9;
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+}
+.g-wordle-bead.present::after,
+.g-wordle-key.present::after {
+  content: '';
+  position: absolute;
+  inset: 0.2em;
+  border: 0.11em solid rgba(255, 255, 255, 0.85);
+  border-radius: inherit;
+}
+.g-wordle-bead.pop {
+  animation: g-wordle-pop 0.18s ease-out;
+}
+.g-wordle-bead.flip {
+  animation: g-wordle-flip 0.46s ease-in-out;
+}
+
+/* --- Jannis Tipp --- */
+.g-wordle-hint {
+  flex: 0 0 4.3em;
+  display: flex;
+  align-items: center;
+  gap: 0.8em;
+  padding: 0 0.8em 0 0.5em;
+  visibility: hidden;
+}
+.g-wordle-hint.on {
+  visibility: visible;
+}
+.g-wordle-janni {
+  flex: 0 0 auto;
+  height: 3.8em;
+  width: auto;
+  filter: drop-shadow(0 0.14em 0 rgba(20, 10, 6, 0.55));
+  transform-origin: 50% 100%;
+  animation: bobble 2.6s ease-in-out infinite;
+}
+.g-wordle-bubble {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  background: #fff;
+  color: var(--ink);
+  border: 0.15em solid var(--ink);
+  border-radius: 1em;
+  padding: 0.42em 0.75em 0.48em;
+  box-shadow: 0.16em 0.2em 0 rgba(20, 10, 6, 0.45);
+}
+.g-wordle-bubble::before {
+  content: '';
+  position: absolute;
+  left: -0.5em;
+  top: 50%;
+  width: 0.75em;
+  height: 0.75em;
+  margin-top: -0.38em;
+  background: #fff;
+  border-left: 0.15em solid var(--ink);
+  border-bottom: 0.15em solid var(--ink);
+  transform: rotate(45deg);
+}
+.g-wordle-bubble p {
+  margin: 0;
+  font-size: 0.95em;
+  font-weight: 800;
+  line-height: 1.22;
+}
+.g-wordle-hint.fresh .g-wordle-bubble {
+  animation: g-wordle-bubble 0.5s cubic-bezier(0.2, 1.5, 0.4, 1);
+  transform-origin: 0 50%;
+}
+
+/* --- Tastatur aus Perlen --- */
+.g-wordle-keys {
+  flex: 0 0 auto;
+  display: grid;
+  gap: 0.4em;
+  padding: 0.6em 0.3em calc(0.65em + env(safe-area-inset-bottom, 0px));
+  background: rgba(34, 20, 14, 0.8);
+  border-top: 0.1em solid rgba(255, 244, 226, 0.22);
+  border-radius: 1.1em 1.1em 0 0;
+}
+.g-wordle-keyrow {
+  display: grid;
+  grid-template-columns: repeat(11, minmax(0, 1fr));
+  gap: 0.22em;
+}
+.g-wordle-key {
+  appearance: none;
+  position: relative;
+  min-width: 0;
+  height: 3.3em;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0.13em solid var(--ink);
+  border-radius: 0.95em;
+  background: linear-gradient(#fffaf0, #eed7ae);
+  color: var(--ink);
+  font-size: 1em;
+  box-shadow: 0 0.17em 0 #150c08;
+  touch-action: none;
+  transition:
+    transform 0.06s,
+    background 0.25s;
+}
+.g-wordle-key::before {
+  content: '';
+  position: absolute;
+  left: 16%;
+  top: 7%;
+  width: 34%;
+  height: 12%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+}
+.g-wordle-key b {
+  font: 400 1.42em/1 var(--display);
+  padding-top: 0.18em;
+  pointer-events: none;
+}
+.g-wordle-key svg {
+  width: 1.75em;
+  height: 1.75em;
+  pointer-events: none;
+}
+.g-wordle-key.wide {
+  grid-column: span 2;
+}
+.g-wordle-key[data-key='ENTER'] {
+  background: linear-gradient(#ffe88f, var(--gold));
+}
+.g-wordle-key[data-key='BACK'] {
+  background: linear-gradient(#f4e7d6, #d6bf9f);
+}
+.g-wordle-key.down {
+  transform: translateY(0.13em) scale(0.93);
+  box-shadow: 0 0.03em 0 #150c08;
+}
+.g-wordle-key.ready {
+  animation: g-wordle-ready 0.55s ease-in-out infinite alternate;
+}
+.g-wordle-key.nudge {
+  animation: g-wordle-nudge 0.4s ease-in-out;
+}
+.g-wordle-key.hit {
+  background: linear-gradient(#ffab58, var(--orange));
+  color: #fff;
+}
+.g-wordle-key.present {
+  background: linear-gradient(#b995ee, var(--purple));
+  color: #fff;
+}
+.g-wordle-key.miss {
+  background: #5d534d;
+  border-color: #241812;
+  color: rgba(255, 244, 226, 0.55);
+}
+.g-wordle-key.miss::before {
+  display: none;
+}
+.g-wordle-key.hit::after {
+  right: 6%;
+  top: 4%;
+  width: 0.62em;
+  height: 0.62em;
+}
+.g-wordle-key.present::after {
+  inset: 0.14em;
+  border-width: 0.09em;
+}
+.g-wordle-key.hit b,
+.g-wordle-key.present b {
+  text-shadow: 0 0.07em 0 rgba(59, 42, 34, 0.5);
+}
+
+/* --- Spielende --- */
+/* dunkler Schleier über Raster, Tipp und Tastatur; Armband-Kreis und Lösungskarte liegen darüber */
+.g-wordle.over::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: rgba(24, 13, 8, 0.62);
+  animation: g-wordle-veil 0.45s ease-out both;
+}
+.g-wordle-finale {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+.g-wordle-cord {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.g-wordle-cord path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.g-wordle-cord-out {
+  stroke: var(--ink);
+  stroke-width: 0.5em;
+}
+.g-wordle-cord-in {
+  stroke: #fff4e2;
+  stroke-width: 0.32em;
+}
+.g-wordle-cord .g-wordle-cord-twist {
+  stroke: #d9b78a;
+  stroke-width: 0.32em;
+  stroke-linecap: butt;
+}
+.g-wordle-loose {
+  position: absolute;
+  left: 0;
+  top: 0;
+  will-change: transform;
+}
+.g-wordle-finale.closed .g-wordle-loose {
+  animation: g-wordle-glow 0.5s ease-in-out infinite alternate;
+}
+.g-wordle-bow {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0.9em;
+  height: 0.9em;
+  margin: -0.45em 0 0 -0.45em;
+  border: 0.12em solid var(--ink);
+  border-radius: 50%;
+  background: #f3dcb6;
+  opacity: 0;
+}
+.g-wordle-finale.closed .g-wordle-bow {
+  opacity: 1;
+}
+.g-wordle-solution {
+  position: absolute;
+  left: 50%;
+  top: 28%;
+  z-index: 6;
+  transform: translate(-50%, -50%);
+  padding: 0.65em 0.45em 0.7em;
+  text-align: center;
+  white-space: nowrap;
+  background: var(--cream);
+  color: var(--ink);
+  border: 0.18em solid var(--ink);
+  border-radius: 1.2em;
+  box-shadow: 0.25em 0.3em 0 var(--orange);
+  animation: g-wordle-drop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+.g-wordle-solution p {
+  margin: 0;
+  font: 400 1.3em/1.1 var(--display);
+  letter-spacing: 0.03em;
+}
+.g-wordle-solution .g-wordle-row {
+  font-size: 0.84em;
+  margin: 0.5em 0 0.45em;
+}
+
+@keyframes g-wordle-veil {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes g-wordle-cursor {
+  from {
+    box-shadow: inset 0 0.22em 0.35em rgba(0, 0, 0, 0.45);
+  }
+  to {
+    box-shadow:
+      inset 0 0.22em 0.35em rgba(0, 0, 0, 0.45),
+      0 0 0.1em 0.22em rgba(255, 210, 63, 0.5);
+  }
+}
+@keyframes g-wordle-pop {
+  from {
+    transform: scale(0.72);
+  }
+  60% {
+    transform: scale(1.12);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes g-wordle-flip {
+  0% {
+    transform: translateY(0) rotateY(0deg);
+  }
+  50% {
+    transform: translateY(-0.5em) rotateY(90deg);
+  }
+  100% {
+    transform: translateY(0) rotateY(0deg);
+  }
+}
+@keyframes g-wordle-bubble {
+  from {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes g-wordle-ready {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.06);
+    box-shadow:
+      0 0.17em 0 #150c08,
+      0 0 0.5em 0.12em rgba(255, 210, 63, 0.75);
+  }
+}
+@keyframes g-wordle-nudge {
+  0%,
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    transform: rotate(-7deg) scale(1.12);
+  }
+  75% {
+    transform: rotate(7deg) scale(1.12);
+  }
+}
+@keyframes g-wordle-glow {
+  from {
+    filter: brightness(1) drop-shadow(0 0 0 rgba(255, 210, 63, 0));
+  }
+  to {
+    filter: brightness(1.14) drop-shadow(0 0 0.35em rgba(255, 210, 63, 0.95));
+  }
+}
+@keyframes g-wordle-drop {
+  from {
+    transform: translate(-50%, -50%) scale(0.3) rotate(-8deg);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1) rotate(-2deg);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .g-wordle-janni,
+  .g-wordle-key.ready,
+  .g-wordle-row.active .g-wordle-bead.cursor {
+    animation: none;
+  }
+}
