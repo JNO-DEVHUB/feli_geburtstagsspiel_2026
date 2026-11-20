@@ -19,7 +19,8 @@ const shot = async (name) => {
 };
 const step = () => page.evaluate(() => window.__feli.step());
 const waitStep = (s) => page.waitForFunction((x) => window.__feli?.step() === x, s, { timeout: 15000 });
-const tap = (x = 195, y = 420) => page.touchscreen.tap(x, y);
+const size = page.viewportSize();
+const tap = (x = size.width / 2, y = size.height / 2) => page.touchscreen.tap(x, y);
 async function tapThrough(prefix) {
   for (let i = 0; i < 80 && (await step()).startsWith(prefix); i++) {
     await tap();
@@ -117,11 +118,11 @@ try {
   await shot('finale-konfetti');
   // Konfetti wegwischen wie ein Rubbellos, bis der Rest von selbst fällt.
   for (let i = 0; i < 30 && (await step()) === 'finale'; i++) {
-    const y = 60 + i * 56;
-    if (y > 800) break;
-    await page.mouse.move(20, y);
+    const y = 40 + i * size.height * 0.066;
+    if (y > size.height - 30) break;
+    await page.mouse.move(15, y);
     await page.mouse.down();
-    await page.mouse.move(370, y + 20, { steps: 6 });
+    await page.mouse.move(size.width - 15, y + 15, { steps: 6 });
     await page.mouse.up();
     if (i === 5) await shot('finale-rubbeln');
   }

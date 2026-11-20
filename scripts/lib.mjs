@@ -39,9 +39,15 @@ export function startServer(dist = join(projectRoot, 'dist')) {
   return { server, origin: `http://127.0.0.1:${server.address().port}${BASE}` };
 }
 
+// VIEWPORT=360x640 npm run smoke prüft ein kleineres Handy.
+function envViewport() {
+  const m = /^(\d+)x(\d+)$/.exec(process.env.VIEWPORT || '');
+  return m ? { width: Number(m[1]), height: Number(m[2]) } : { width: 390, height: 844 };
+}
+
 // Öffnet die App auf Handy-Größe. query z. B. '?debug=1&go=game:3'.
 // Rückgabe: { page, origin, errors, shot(name), close() }
-export async function openApp({ query = '?debug=1', shots = process.env.SCREENSHOTS || join(projectRoot, 'screenshots'), viewport = { width: 390, height: 844 } } = {}) {
+export async function openApp({ query = '?debug=1', shots = process.env.SCREENSHOTS || join(projectRoot, 'screenshots'), viewport = envViewport() } = {}) {
   const { chromium } = loadPlaywright();
   await mkdir(shots, { recursive: true });
   const { server, origin } = startServer();
