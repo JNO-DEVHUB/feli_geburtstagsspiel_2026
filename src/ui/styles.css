@@ -688,41 +688,19 @@ button {
   font-weight: 800;
   font-size: 0.9em;
 }
-/* Kapitel 1: Pferd galoppiert durchs Bild */
+/* Kapitel 1: Das Hochzeitspferd galoppiert durchs Bild */
+.gespann {
+  display: block;
+  width: 100%;
+  aspect-ratio: 300 / 250;
+}
 .tr-rider {
   position: absolute;
   left: 50%;
-  top: 50%;
-  width: 11em;
-  height: 11em;
-  margin: -5.5em 0 0 -5.5em;
-  animation: gallop 3.3s linear both;
-}
-.tr-horse {
-  position: absolute;
-  inset: auto 0 0;
-  font-size: 8.5em;
-  line-height: 1;
-  transform: scaleX(-1);
-  display: block;
-  text-align: center;
-}
-.tr-h1,
-.tr-h2 {
-  position: absolute;
-  width: 4.6em;
-  top: 0.2em;
-  animation: bobble 0.3s ease-in-out infinite;
-  transform-origin: 50% 100%;
-}
-.tr-h1 {
-  left: 4.6em;
-}
-.tr-h2 {
-  left: 1.6em;
-  top: 0.9em;
-  width: 4em;
-  animation-delay: -0.15s;
+  bottom: 6%;
+  width: 19em;
+  margin-left: -9.5em;
+  animation: ride-by 3.4s linear both;
 }
 /* Kapitel 2: Kater lugen aus dem Koffer */
 .tr-case {
@@ -1123,24 +1101,18 @@ button {
     transform: rotate(5deg) scaleY(1);
   }
 }
-@keyframes gallop {
+@keyframes ride-by {
   0% {
-    transform: translate(-190%, 6%) rotate(-6deg);
+    transform: translateX(-125%);
   }
-  20% {
-    transform: translate(-90%, -8%) rotate(4deg);
+  32% {
+    transform: translateX(-14%);
   }
-  40% {
-    transform: translate(-20%, 5%) rotate(-5deg);
-  }
-  60% {
-    transform: translate(30%, -8%) rotate(4deg);
-  }
-  80% {
-    transform: translate(100%, 5%) rotate(-5deg);
+  68% {
+    transform: translateX(10%);
   }
   100% {
-    transform: translate(200%, -6%) rotate(4deg);
+    transform: translateX(130%);
   }
 }
 @keyframes case-shake {
@@ -2063,6 +2035,10 @@ button {
 .hall-icon {
   font-size: 2.3em;
   line-height: 1.1;
+}
+.hall-icon .gespann {
+  width: 1.75em;
+  margin: -0.12em 0 -0.05em;
 }
 .hall-card small {
   font: 400 0.7em var(--display);

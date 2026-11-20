@@ -3,14 +3,17 @@
 import { CHAPTERS, HALL } from '../content.js';
 import { h, onTap } from './dom.js';
 import { createFrameView } from './frame.js';
+import { gespannCanvas } from './gespann.js';
 
 const ICONS = ['🐴', '🐱', '🔍', '📿', '🤾', '🎤'];
 
 export function mountHall(root, app, { onPlay, onVoucher, onIntro }) {
   const results = app.store.get().results;
+  // Kapitel 1 zeigt das echte Hochzeitspferd statt eines Pferde-Emojis.
+  const icons = { horse: gespannCanvas(app.assets, { animate: false }) };
   const grid = h('div.hall-grid');
   CHAPTERS.forEach((c, i) => {
-    const card = h('button.hall-card' + (results[i] === true ? '.got' : ''), h('span.hall-icon', ICONS[i]), h('small', `Kapitel ${i + 1}`), h('b', c.title), h('em', results[i] === true ? `🧩 ${c.hint}` : `🧩 ${HALL.locked}`));
+    const card = h('button.hall-card' + (results[i] === true ? '.got' : ''), h('span.hall-icon', i === 0 ? icons.horse.el : ICONS[i]), h('small', `Kapitel ${i + 1}`), h('b', c.title), h('em', results[i] === true ? `🧩 ${c.hint}` : `🧩 ${HALL.locked}`));
     onTap(card, () => {
       app.audio.play('tap');
       onPlay(i);
@@ -46,5 +49,10 @@ export function mountHall(root, app, { onPlay, onVoucher, onIntro }) {
     });
   });
 
-  return { destroy: () => screen.remove() };
+  return {
+    destroy() {
+      icons.horse.stop();
+      screen.remove();
+    },
+  };
 }

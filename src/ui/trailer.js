@@ -7,6 +7,7 @@ import { CHAPTERS, TRAILER } from '../content.js';
 import { charEl, headEl } from '../render/chars.js';
 import { h, onTap } from './dom.js';
 import { burst, popWord, shake } from './fx.js';
+import { gespannCanvas } from './gespann.js';
 
 const SKIP_AFTER = 3000;
 const START = 300;
@@ -22,7 +23,10 @@ export function mountTrailer(root, app, { onDone }) {
   const timers = [];
   let finished = false;
   const at = (ms, fn) => timers.push(setTimeout(() => !finished && fn(), ms));
+  let horse = null; // galoppierendes Hochzeitspferd der Kapitel-1-Szene
   const set = (cls, ...children) => {
+    horse?.stop();
+    horse = null;
     slide.className = 'trailer-slide ' + cls;
     slide.replaceChildren(...children);
     void slide.offsetWidth; // Animation neu starten
@@ -37,13 +41,18 @@ export function mountTrailer(root, app, { onDone }) {
     if (finished) return;
     finished = true;
     timers.forEach(clearTimeout);
+    horse?.stop();
     stopScore();
     onDone();
   };
 
   // Kleine Szene je Kapitel: [Bild-Elemente, Sounds mit Verzögerung in ms]
   const art = [
-    () => [h('div.tr-rider', h('span.tr-horse', '🐎'), headEl(assets, 'feli', 'tr-h1'), headEl(assets, 'janni', 'tr-h2')), [['wieher', 200], ['hoof', 900], ['hoof', 1150], ['hoof', 1400], ['hoof', 1650]]],
+    () => {
+      // dasselbe weiße Hochzeitspferd wie im Spiel, mit Feli und Janni im Sattel
+      const ride = gespannCanvas(assets, { onStep: () => audio.play('hoof') });
+      return [h('div.tr-rider', ride.el), [['wieher', 200]], ride];
+    },
     () => [h('div.tr-case', headEl(assets, 'franks', 'tr-peek p1'), headEl(assets, 'findi', 'tr-peek p2'), h('span.tr-suitcase', '🧳')), [['meow', 800], ['meow', 1500]]],
     () => [h('div.tr-loupe', '🔍'), [['ping', 1300], ['ping', 2500]]],
     () => [h('div.tr-beads', ['#F07A1A', '#8E5BD0', '#FFD23F', '#E5484D', '#7CC4F0'].map((c, i) => h('i', { style: { background: c, animationDelay: 0.3 + i * 0.32 + 's' } }, '?'))), [0, 1, 2, 3, 4].map((i) => ['bead', 500 + i * 320, i])],
@@ -100,8 +109,9 @@ export function mountTrailer(root, app, { onDone }) {
   }]);
   CHAPTERS.forEach((c, i) => {
     scenes.push([TRAILER_PLAN.chapter, () => {
-      const [el, sounds] = art[i]();
+      const [el, sounds, runner] = art[i]();
       set('t-chapter c' + i, backdrop(c.bg), h('div.trailer-art', el), h('div.trailer-caption', h('small', `Kapitel ${i + 1}`), h('h2', c.trailer)));
+      horse = runner ?? null;
       audio.play('whoosh');
       for (const [name, delay, arg] of sounds) at(delay, () => audio.play(name, arg));
     }]);
@@ -142,6 +152,7 @@ export function mountTrailer(root, app, { onDone }) {
     destroy() {
       finished = true;
       timers.forEach(clearTimeout);
+      horse?.stop();
       if (audio.mood === null) stopScore();
       screen.remove();
     },
