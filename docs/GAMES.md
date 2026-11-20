@@ -52,7 +52,7 @@ Figuren: `feli` (Outfits `braut`, `trikot`, `show`), `janni` (`anzug`, `torwart`
 - Warmer Wimmelbild-Comic: kräftige Farben, dicke dunkle Konturen, harte Schlagschatten, viel Humor.
 - Farben als CSS-Variablen: `--orange #F07A1A`, `--cream #FFF4E2`, `--ink #3B2A22`, `--sky #7CC4F0`, `--gold #FFD23F`,
   `--red #E5484D`, `--purple #8E5BD0`, `--green #3F9B5A`. Schriften: `var(--display)` (Luckiest Guy, nur Großes) und `var(--body)` (Nunito).
-- **Alle Maße in `em`.** Die Bühne setzt ihre Schriftgröße passend zur Breite (16px bei 390px). Im Canvas statt fester
+- **Alle Maße in `em`.** Die Bühne setzt ihre Schriftgröße als `16px × min(Breite/390, Höhe/760)` (16px bei 390×844, ca. 13,5px bei 360×640). Im Canvas statt fester
   Pixel mit `view.w`/`view.h` rechnen. Die Bühne ist 360×640 bis 430×932 groß, Referenz 390×844.
 - Sprache: Deutsch, Duzen. Anrede für Feli: „Spatzl“ (nie „Königin“). Kein Text darf „Köln“, „Comedy“ oder „Chris Tall“ nennen.
 - Nur Touch (Pointer Events). Tippziele mindestens 2.6em groß.
