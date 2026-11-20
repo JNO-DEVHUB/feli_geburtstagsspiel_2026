@@ -1,5 +1,6 @@
 // Rahmen um ein Minispiel: Regel-Karte mit Start-Knopf, dann das Spiel, dann die Meldung ans Programm.
 
+import { HEAD_KEYS } from '../assets.js';
 import { CHAPTERS } from '../content.js';
 import { GAMES } from '../games/index.js';
 import { createRng, randomSeed } from '../core/rng.js';
@@ -25,10 +26,26 @@ export function mountGame(root, app, { chapter, onEnd }) {
     onEnd(!!won);
   };
 
-  onTap(start, () => {
-    app.audio.play('tap');
+  // Erst starten, wenn Hintergrund und Köpfe da sind (sonst zeichnet ein Canvas-Spiel Platzhalter).
+  // Ein Tipp vor dem Ende des Ladens wird gemerkt und danach ausgeführt.
+  let ready = false;
+  let wanted = false;
+  const begin = () => {
+    if (game || ended || !howto.isConnected) return;
     howto.remove();
     game = GAMES[ch.game].createGame({ root: stageEl, audio: app.audio, assets: app.assets, rng: createRng(randomSeed()), debug: app.debug, end });
+  };
+  start.classList.add('loading');
+  Promise.race([app.assets.load([ch.bg, ...HEAD_KEYS]), new Promise((r) => setTimeout(r, 8000))]).then(() => {
+    ready = true;
+    start.classList.remove('loading');
+    if (wanted) begin();
+  });
+
+  onTap(start, () => {
+    app.audio.play('tap');
+    wanted = true;
+    if (ready) begin();
   });
 
   return {

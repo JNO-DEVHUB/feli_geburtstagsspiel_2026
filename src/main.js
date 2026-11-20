@@ -187,7 +187,7 @@ if (debug) {
 // --- Start ---
 (async () => {
   stage.classList.add('loading');
-  await Promise.race([Promise.all([assets.loadManifest(), assets.load([...HEAD_KEYS, 'bg:card', 'puzzle'])]), new Promise((r) => setTimeout(r, 6000))]);
+  await Promise.race([Promise.all([assets.loadManifest(), assets.load([...HEAD_KEYS, 'bg:card', 'puzzle'])]), new Promise((r) => setTimeout(r, 10000))]);
   stage.classList.remove('loading');
   const wanted = debug && params.get('go');
   if (wanted && STEPS.includes(wanted)) go(wanted);
