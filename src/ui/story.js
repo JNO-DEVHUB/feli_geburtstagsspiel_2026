@@ -25,7 +25,7 @@ export function mountStory(root, app, { bg, lines, cast = [], title = null, kick
   const enter = (who) => {
     if (present.has(who)) return;
     present.add(who);
-    const el = charEl(assets, who, who === 'feli' ? 'braut' : 'default', { className: 'story-guest' });
+    const el = charEl(assets, who, who === 'feli' ? 'braut' : 'default', who === 'feli' ? { className: 'story-guest' } : { className: 'story-guest', headScale: 1.3, headDy: 22 });
     castBox.append(el);
   };
   cast.forEach(enter);

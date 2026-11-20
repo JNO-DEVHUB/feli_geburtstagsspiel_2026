@@ -69,7 +69,7 @@ export const CHAPTERS = [
       { who: 'janni', text: '… Ich hab nicht gesagt, dass ihr mitkommen dürft.' },
       { who: 'janni', text: 'Jetzt brauchen sie Plätze. Aber Kater sind Kater: Jeder will sein eigenes Revier, und keiner will den anderen sehen. Nicht mal diagonal.' },
     ],
-    howto: ['Setz 6 Kater auf die Sitze.', 'Pro Zeile, Spalte und Polsterfarbe genau ein Kater.', 'Kater dürfen sich nicht berühren, auch nicht diagonal.', '1× tippen = ✕, 2× tippen = Kater. 3 Herzen.'],
+    howto: ['Setz 6 Kater auf die Sitze.', 'Pro Zeile, Spalte und Polsterfarbe genau ein Kater.', 'Kater dürfen sich nicht berühren, auch nicht diagonal.', '3 Herzen. Gleich kommt noch ein Beispiel.'],
     outroWin: 'Ruhe im Abteil. Der Schaffner hat nichts gemerkt. Glaubt er zumindest.',
     outroLose: 'Chaos im Abteil! Der Schaffner hat ALLES gemerkt. Wir tun einfach so, als wären das nicht unsere Kater.',
     hint: 'ZU ZWEIT',

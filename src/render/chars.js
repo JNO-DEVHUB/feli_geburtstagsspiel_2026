@@ -80,11 +80,12 @@ function geom(who) {
 }
 
 // Kopf-Rechteck im Körper-Koordinatensystem.
-export function headBox(assets, who) {
+// opts.headScale / opts.headDy: Kopf größer bzw. tiefer setzen (z. B. Kater in den Story-Szenen).
+export function headBox(assets, who, opts = {}) {
   const gm = geom(who);
-  const size = gm.head * (HEAD_SCALE[who] ?? 1);
+  const size = gm.head * (HEAD_SCALE[who] ?? 1) * (opts.headScale ?? 1);
   const [nx, ny] = assets.neck(who);
-  return { x: gm.neck[0] - nx * size, y: gm.neck[1] - ny * size + 8, size, neck: gm.neck };
+  return { x: gm.neck[0] - nx * size, y: gm.neck[1] - ny * size + 8 + (opts.headDy ?? 0), size, neck: gm.neck };
 }
 
 export function bodyMarkup(who, outfit = 'default', opts) {
@@ -94,7 +95,7 @@ export function bodyMarkup(who, outfit = 'default', opts) {
 // Vollständige Figur als SVG-Markup (Kopf als <image>).
 export function charSvg(assets, who, outfit = 'default', opts = {}) {
   const gm = geom(who);
-  const hb = headBox(assets, who);
+  const hb = headBox(assets, who, opts);
   return (
     `<svg class="char-svg" viewBox="0 0 ${gm.w} ${gm.h}" aria-hidden="true">${bodyMarkup(who, outfit, opts)}` +
     `<g class="char-head" style="transform-origin:${hb.neck[0]}px ${hb.neck[1]}px"><image href="${assets.url('head:' + who)}" x="${hb.x}" y="${hb.y}" width="${hb.size}" height="${hb.size}"/></g></svg>`

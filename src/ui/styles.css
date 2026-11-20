@@ -959,7 +959,8 @@ button {
 }
 .story-guest.char-franks,
 .story-guest.char-findi {
-  width: 50%;
+  margin-left: -3%;
+  width: 46%;
 }
 .story-bubble {
   position: absolute;
@@ -984,8 +985,8 @@ button {
 }
 .story-hint {
   position: absolute;
-  right: 1em;
-  bottom: calc(0.9em + env(safe-area-inset-bottom, 0px));
+  right: 7%;
+  bottom: calc(43% - 2.1em);
   color: #fff;
   font-weight: 800;
   font-size: 0.85em;
