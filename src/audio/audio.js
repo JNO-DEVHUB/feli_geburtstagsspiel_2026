@@ -96,6 +96,13 @@ export function createAudio() {
     type: () => tone({ f: 1500 + Math.random() * 300, dur: 0.02, type: 'square', vol: 0.012 }),
     flip: () => noise({ dur: 0.22, vol: 0.07, hp: 1500 }),
     whoosh: () => noise({ dur: 0.3, vol: 0.09, hp: 900 }),
+    // Zug bremst: Rauschen und ein abfallendes Quietschen
+    brake: () => {
+      noise({ dur: 1.6, vol: 0.1, hp: 700 });
+      tone({ f: 2300, f2: 1250, dur: 1.4, type: 'sawtooth', vol: 0.035, filter: 3200, attack: 0.3 });
+      tone({ f: 3100, f2: 1700, dur: 1.3, type: 'sine', vol: 0.03, attack: 0.4 });
+      noise({ dur: 0.35, vol: 0.12, hp: 2500, at: 1.5 });
+    },
     // Ergebnis
     win: () => arp(72, [0, 4, 7, 12, 7, 12, 16], 0.1, { dur: 0.3 }),
     lose: () => [0, -1, -2, -3].forEach((n, i) => tone({ f: NOTE(58 + n), f2: NOTE(57.5 + n), dur: i === 3 ? 0.7 : 0.28, type: 'sawtooth', vol: 0.11, filter: 900, at: i * 0.3 })),

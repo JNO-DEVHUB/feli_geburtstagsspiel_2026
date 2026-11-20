@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { MOODS, createMusic } from '../src/audio/music.js';
+import { MOODS, TRAILER_PLAN, createMusic } from '../src/audio/music.js';
 
 test('sechs Stimmungen mit Tempo, vier Akkorden und gültigen Melodie-Indizes', () => {
   assert.deepEqual(Object.keys(MOODS).sort(), ['action', 'calm', 'party', 'show', 'tense', 'think']);
@@ -26,4 +26,13 @@ test('ohne Audio-Kontext passiert nichts (kein Absturz, keine Stimmung hängt)',
   stop();
   music.setMood('gibtsnicht');
   assert.equal(music.mood, null);
+});
+
+test('Trailer-Plan: sechs Kapitel, Gesamtlänge zwischen 30 und 45 Sekunden', () => {
+  const p = TRAILER_PLAN;
+  assert.equal(p.chapters, 6);
+  const bars = p.presents + p.title + p.chapters * p.chapter + p.train + p.outro;
+  const seconds = bars * p.bar;
+  assert.ok(seconds >= 30 && seconds <= 45, String(seconds));
+  assert.ok(p.chapter * p.bar >= 3, 'jede Kapitel-Szene mindestens 3 Sekunden lesbar');
 });

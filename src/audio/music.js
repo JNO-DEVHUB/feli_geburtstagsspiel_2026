@@ -17,6 +17,9 @@ const D = [50, 54, 57];
 const A = [45, 49, 52];
 const Gm = [43, 46, 50];
 
+// Aufbau des Trailers in Takten (ein Takt = 1,75 s). ui/trailer.js richtet seine Szenen danach aus.
+export const TRAILER_PLAN = Object.freeze({ bar: 1.75, presents: 2, title: 2, chapter: 2, chapters: 6, train: 3, outro: 2 });
+
 // Melodiemuster: je Achtel ein Index in die Akkordtöne (0–2, +3 = eine Oktave höher), null = Pause.
 const _ = null;
 export const MOODS = Object.freeze({
@@ -234,9 +237,9 @@ export function createMusic(getCtx, getOut) {
     timer = setInterval(tick, 30);
   }
 
-  // --- Trailer-Vorspann: 9 Takte bei 96 Schlägen (ein Takt = 2,5 s = eine Trailer-Szene) ---
-  // Takt 1 Herzklopfen und Ticken, Takt 2 großer Einsatz zum Titel, Takte 3–8 treibendes Ostinato, das sich
-  // Kapitel für Kapitel steigert, Takt 9 plötzlich leise (Dominante), dann die Auflösung in Dur.
+  // --- Trailer-Vorspann nach TRAILER_PLAN: je Szene eine feste Zahl Takte ---
+  // Vorstellung: Herzklopfen und Ticken. Titel: großer Einsatz. Kapitel: treibendes Ostinato, das sich Kapitel für
+  // Kapitel steigert. Zug-Szene: plötzlich leise, die Dominante flirrt, zum Ende schwillt es an. Schluss: Auflösung in Dur.
   function playTrailer(delay = 0) {
     const ctx = ensure();
     if (!ctx) return () => {};
@@ -245,61 +248,100 @@ export function createMusic(getCtx, getOut) {
     stopLoop();
     gate(true);
     const out = ctx.createGain();
-    out.gain.value = 2.3; // der Vorspann darf deutlich lauter sein als die Hintergrund-Schleifen
+    out.gain.value = 1.55; // der Vorspann darf deutlich lauter sein als die Hintergrund-Schleifen
     out.connect(dry);
     score = { gain: out };
-    const BAR = 2.5;
+    const P = TRAILER_PLAN;
+    const BAR = P.bar;
     const b8 = BAR / 8;
     const t0 = ctx.currentTime + 0.06 + delay;
     const at = (bar, eighth = 0) => t0 + bar * BAR + eighth * b8;
+    const heart = (bar, v = 1) => {
+      for (const e of [0, 1, 4, 5]) kick(out, at(bar, e), (e % 4 ? 0.15 : 0.23) * v);
+    };
+    let bar = 0;
 
-    // Takt 1: tiefer Liegeton, Herzschlag, Uhr, anschwellendes Rauschen
-    osc(out, { f: NOTE(38), t: at(0), dur: BAR * 2, type: 'sawtooth', vol: 0.05, attack: 1.2, release: 0.6, filter: 260 });
-    for (const e of [0, 1, 4, 5]) kick(out, at(0, e), e % 4 ? 0.16 : 0.24);
-    for (let e = 0; e < 8; e++) hat(out, at(0, e), 0.018);
-    for (const e of [0, 2, 4, 6]) pluck(out, e % 4 ? 69 : 74, at(0, e), b8 * 1.6, 0.03); // Tick-Tack in hörbarer Lage
-    noise(out, { t: at(0, 4), dur: BAR / 2, vol: 0.002, vol2: 0.12, hp: 1800 });
-    // Takt 2: Einsatz zum Titel
-    for (const [n, det] of [[26, -8], [26, 9], [38, -5], [45, 6], [50, 0]]) {
-      osc(out, { f: NOTE(n), t: at(1), dur: BAR * 0.95, type: 'sawtooth', vol: 0.085, attack: 0.02, release: 1.4, filter: 2600, filter2: 300, detune: det });
+    // Vorstellung: tiefer Liegeton, Herzschlag, Tick-Tack, anschwellendes Rauschen
+    osc(out, { f: NOTE(38), t: at(0), dur: BAR * (P.presents + 0.5), type: 'sawtooth', vol: 0.05, attack: 1.2, release: 0.6, filter: 260 });
+    for (let i = 0; i < P.presents; i++) {
+      heart(bar + i);
+      for (let e = 0; e < 8; e++) hat(out, at(bar + i, e), 0.016);
+      for (const e of [0, 2, 4, 6]) pluck(out, e % 4 ? 69 : 74, at(bar + i, e), b8 * 1.7, 0.03 + i * 0.008);
     }
-    timpani(out, 38, at(1), 0.3);
-    noise(out, { t: at(1), dur: 1.6, vol: 0.12, hp: 5000 });
-    for (let i = 0; i < 8; i++) timpani(out, 38, at(1, 6) + (i * b8) / 4, 0.05 + i * 0.022);
-    // Takte 3–8: Ostinato, Bass und Melodie, je Takt dichter
+    noise(out, { t: at(bar + P.presents - 1, 3), dur: b8 * 5, vol: 0.002, vol2: 0.13, hp: 1800 });
+    bar += P.presents;
+
+    // Titel: Einsatz, zum Ende ein Paukenwirbel
+    for (const [n, det] of [[26, -8], [26, 9], [38, -5], [45, 6], [50, 0]]) {
+      osc(out, { f: NOTE(n), t: at(bar), dur: BAR * P.title * 0.96, type: 'sawtooth', vol: 0.085, attack: 0.02, release: 1.6, filter: 2600, filter2: 300, detune: det });
+    }
+    timpani(out, 38, at(bar), 0.3);
+    noise(out, { t: at(bar), dur: 1.8, vol: 0.12, hp: 5000 });
+    for (let i = 0; i < 12; i++) timpani(out, 38, at(bar + P.title - 1, 5) + (i * b8) / 4, 0.04 + i * 0.016);
+    bar += P.title;
+
+    // Kapitel: Ostinato, Bass und Oberstimme, je Kapitel dichter
     const prog = [Dm, Dm, Bb, Bb, Gm, A];
     const top = [74, 77, 77, 81, 82, 85];
-    prog.forEach((ch, i) => {
-      const bar = 2 + i;
-      const k = i / 5; // 0 → 1
-      timpani(out, ch[0] - 12, at(bar), 0.24 + k * 0.1);
-      bassNote(out, ch[0] - 12, at(bar), BAR * 0.98, 0.1 + k * 0.03);
-      const fig = [0, 0, 2, 0, 1, 0, 2, 3];
-      for (let e = 0; e < 8; e++) {
-        stacc(out, tone3(ch, fig[e]) + 12, at(bar, e), b8 * 0.62, 0.04 + k * 0.022, 1500 + k * 1500);
-        if (i >= 2) stacc(out, tone3(ch, fig[e]) + 24, at(bar, e), b8 * 0.5, 0.016 + k * 0.014, 2400);
-        if (i >= 1) hat(out, at(bar, e), 0.014 + k * 0.022);
-        if (i >= 3) hat(out, at(bar, e) + b8 / 2, 0.012 + k * 0.014);
+    const figs = [
+      [0, 0, 2, 0, 1, 0, 2, 3],
+      [0, 0, 2, 0, 3, 2, 1, 2],
+    ];
+    for (let i = 0; i < P.chapters; i++) {
+      const ch = prog[i % prog.length];
+      const k = i / Math.max(1, P.chapters - 1); // 0 → 1
+      for (let j = 0; j < P.chapter; j++) {
+        const b = bar + i * P.chapter + j;
+        const lastBar = i === P.chapters - 1 && j === P.chapter - 1;
+        timpani(out, ch[0] - 12, at(b), j === 0 ? 0.24 + k * 0.1 : 0.1 + k * 0.08);
+        bassNote(out, ch[0] - 12, at(b), BAR * 0.98, 0.1 + k * 0.03);
+        const fig = figs[j % 2];
+        for (let e = 0; e < 8; e++) {
+          stacc(out, tone3(ch, fig[e]) + 12, at(b, e), b8 * 0.62, 0.04 + k * 0.022, 1500 + k * 1500);
+          if (i >= 2) stacc(out, tone3(ch, fig[e]) + 24, at(b, e), b8 * 0.5, 0.016 + k * 0.014, 2400);
+          if (i >= 1) hat(out, at(b, e), 0.014 + k * 0.02);
+        }
+        if (i >= 2) for (const e of [0, 3, 6]) kick(out, at(b, e), 0.15 + k * 0.1);
+        if (i >= 3) for (const e of [2, 6]) snare(out, at(b, e), 0.03 + k * 0.03);
+        if (i >= 1) osc(out, { f: NOTE(top[i % top.length] + (j ? 2 : 0)), t: at(b), dur: BAR * 0.96, type: 'sawtooth', vol: 0.02 + k * 0.02, attack: 0.2, release: 0.35, filter: 2400 });
+        if (lastBar) {
+          for (let q = 0; q < 16; q++) snare(out, at(b, 4) + (q * b8) / 4, 0.02 + q * 0.008);
+          noise(out, { t: at(b, 2), dur: b8 * 6, vol: 0.002, vol2: 0.16, hp: 1500 });
+        }
       }
-      if (i >= 2) for (const e of [0, 3, 6]) kick(out, at(bar, e), 0.16 + k * 0.1);
-      if (i >= 1) osc(out, { f: NOTE(top[i]), t: at(bar), dur: BAR * 0.96, type: 'sawtooth', vol: 0.02 + k * 0.022, attack: 0.25, release: 0.4, filter: 2400 });
-      if (i === 5) {
-        for (let q = 0; q < 16; q++) snare(out, at(bar, 4) + (q * b8) / 4, 0.02 + q * 0.008);
-        noise(out, { t: at(bar, 2), dur: BAR * 0.75, vol: 0.002, vol2: 0.16, hp: 1500 });
-      }
-    });
-    // Takt 9: Stille mit Herzklopfen, die Dominante flirrt
-    for (let e = 0; e < 8; e++) stacc(out, 69, at(8, e), b8 * 0.5, 0.012 + (e % 2 ? 0 : 0.006), 1300);
-    osc(out, { f: NOTE(45), t: at(8), dur: BAR, type: 'sawtooth', vol: 0.035, attack: 0.4, release: 0.3, filter: 300 });
-    for (const e of [0, 1, 4, 5]) kick(out, at(8, e), e % 4 ? 0.14 : 0.2);
-    noise(out, { t: at(8, 5), dur: b8 * 3, vol: 0.002, vol2: 0.1, hp: 2500 });
-    // Auflösung
-    timpani(out, 38, at(9), 0.3);
-    for (const n of [50, 54, 57, 62, 66, 69]) {
-      osc(out, { f: NOTE(n), t: at(9), dur: 3.4, type: 'sawtooth', vol: 0.06, attack: 0.03, release: 2.6, filter: 3200, filter2: 700, detune: n % 2 ? 6 : -6 });
     }
-    noise(out, { t: at(9), dur: 1.8, vol: 0.09, hp: 6000 });
-    [74, 78, 81, 86].forEach((n, i) => pluck(out, n, at(9) + 0.12 + i * 0.09, 0.9, 0.05)); // kleiner Aufgang in Dur
+    bar += P.chapters * P.chapter;
+
+    // Zug-Szene: Stille mit Herzklopfen, die Dominante flirrt, im letzten Takt schwillt es an
+    timpani(out, 33, at(bar), 0.2);
+    osc(out, { f: NOTE(45), t: at(bar), dur: BAR * P.train, type: 'sawtooth', vol: 0.035, attack: 0.4, release: 0.3, filter: 320 });
+    for (let i = 0; i < P.train; i++) {
+      const last = i === P.train - 1;
+      heart(bar + i, 0.9);
+      for (let e = 0; e < 8; e++) {
+        stacc(out, e % 2 ? 76 : 69, at(bar + i, e), b8 * 0.5, 0.011 + i * 0.004 + (e % 4 ? 0 : 0.005), 1300 + i * 300);
+        if (i > 0) hat(out, at(bar + i, e), 0.012);
+      }
+      if (i > 0) pluck(out, [81, 85][i - 1] ?? 88, at(bar + i, 4), b8 * 3, 0.03);
+      if (last) {
+        for (let q = 0; q < 16; q++) timpani(out, 33, at(bar + i, 4) + (q * b8) / 4, 0.03 + q * 0.012);
+        noise(out, { t: at(bar + i, 3), dur: b8 * 5, vol: 0.002, vol2: 0.14, hp: 2200 });
+      }
+    }
+    bar += P.train;
+
+    // Schluss: Auflösung in Dur mit kleinem Aufgang, im zweiten Takt noch einmal höher
+    timpani(out, 38, at(bar), 0.3);
+    for (const n of [38, 50, 54, 57, 62, 66, 69]) {
+      osc(out, { f: NOTE(n), t: at(bar), dur: BAR * P.outro + 2.2, type: 'sawtooth', vol: 0.05, attack: 0.03, release: 2.4, filter: 3200, filter2: 800, detune: n % 2 ? 6 : -6 });
+    }
+    noise(out, { t: at(bar), dur: 1.8, vol: 0.09, hp: 6000 });
+    [74, 78, 81, 86].forEach((n, i) => pluck(out, n, at(bar) + 0.12 + i * 0.1, 0.9, 0.05));
+    for (let j = 1; j < P.outro; j++) [78, 81, 86, 90].forEach((n, i) => pluck(out, n, at(bar + j) + i * 0.1, 0.9, 0.045));
+    bar += P.outro;
+    // Schlussakkord zur Frage „Bereit?“
+    timpani(out, 38, at(bar), 0.22);
+    for (const n of [62, 66, 69, 74]) osc(out, { f: NOTE(n), t: at(bar), dur: 2.6, type: 'triangle', vol: 0.045, attack: 0.02, release: 2.2 });
     const mine = score;
     return () => {
       if (score === mine) stopScore();

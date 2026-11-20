@@ -42,14 +42,20 @@ try {
   await waitStep('trailer');
   await page.waitForTimeout(1500);
   await shot('trailer-praesentiert');
-  await page.waitForTimeout(2600);
+  await page.waitForSelector('.t-title', { timeout: 8000 });
+  await page.waitForTimeout(700);
   await shot('trailer-titel');
   for (let c = 0; c < 6; c++) {
     await page.waitForFunction((i) => window.document.querySelector('.t-chapter.c' + i), c, { timeout: 8000 });
-    await page.waitForTimeout(c === 0 ? 650 : 1050);
+    await page.waitForTimeout(c === 0 ? 1000 : 1500);
     await shot(`trailer-k${c + 1}`);
   }
-  await page.waitForSelector('.t-end', { timeout: 9000 });
+  await page.waitForSelector('.t-train', { timeout: 8000 });
+  await page.waitForTimeout(900);
+  await page.screenshot({ path: join(shots, `${String(++n).padStart(2, '0')}-trailer-zug-faehrt-ein.png`) });
+  await page.waitForTimeout(3300);
+  await shot('trailer-zug-ausstieg');
+  await page.waitForSelector('.t-end', { timeout: 12000 });
   await shot('trailer-ende');
   if (process.env.FULL_TRAILER) await page.click('.t-end .btn');
   else {

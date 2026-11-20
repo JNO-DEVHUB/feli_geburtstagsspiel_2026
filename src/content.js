@@ -25,6 +25,7 @@ export const CARD = {
 export const TRAILER = {
   presents: 'Eine Janni-Production präsentiert …',
   title: 'FELIS GROSSE REISE',
+  train: { sign: 'Nächster Halt', kicker: 'Vier Reisende. Ein Ziel.', title: 'Aber welches?' },
   outro: ['Nur echt mit Krone.', 'Bereit, Spatzl?'],
   button: 'Abenteuer starten',
   skip: 'Überspringen',

@@ -29,14 +29,17 @@ Ab dem zweiten Öffnen startet die App im Spielesaal.
 
 ## Testen
 
+- **Von vorn beginnen:** Der Knopf ↺ oben links führt nach einer Rückfrage zurück zur Geburtstagskarte und leert
+  den Spielstand. Er ist auf jedem Bildschirm da, nur während eines laufenden Spiels nicht.
 - **Debug-Modus:** `?debug=1` an die URL hängen. Unten links erscheint ein Käfer-Knopf mit Schritt zurück/vor,
   Sprung zu jedem Schritt, „Gewinnen“, „Verlieren“ und „Reset“.
 - **Ein Spiel direkt starten:** `?debug=1&go=game:0` bis `game:5` (Kapitel zählen ab 0). Andere Schritte:
   `card`, `trailer`, `prolog`, `story:N`, `frame:N`, `finale`, `voucher`, `hall`.
-- **Fortschritt zurücksetzen:** im Debug-Modus „Reset“ tippen (wichtig vor der Übergabe an Feli, siehe unten).
+- **Achtung bei Sprung-Links:** Mit `&go=…` startet die App immer an genau diesem Schritt, auch nach einem Reset
+  oder gelöschten Website-Daten. Für den echten Start die URL ohne `go` öffnen.
 
-Der Spielstand liegt im `localStorage` des Browsers. Wer vorher auf Felis Handy testet, muss danach dort
-`…/feli_geburtstagsspiel_2026/?debug=1` öffnen, „Reset“ tippen und den Tab schließen.
+Der Spielstand liegt im `localStorage` des Browsers. Wer vorher auf Felis Handy testet, tippt danach dort oben
+links auf ↺ und bestätigt mit „Ja, von vorn“.
 
 ## Entwicklung
 
@@ -107,10 +110,15 @@ src/
 - **Bilder aufbereitet:** Die gelieferten Grafiken werden per Skript verkleinert (gesamt 4,9 MB → 2,3 MB, Köpfe
   von ca. 230 KB auf ca. 16 KB). Die Fotoköpfe bekommen dabei saubere Ränder, eine dunkle Comic-Kontur und etwas
   kräftigere Farben. Ein Spiel startet erst, wenn sein Hintergrund geladen ist.
+- **Trailer länger als in der SPEC:** ca. 37 statt 25 Sekunden, damit man jede Szene lesen kann (3,5 s je Kapitel).
+  Neu ist die Zug-Szene vor dem Schluss: Der ICE fährt ein, die Tür geht auf, Feli, Janni, Franks und Findi steigen
+  aus, das Bahnhofsschild zeigt „???“. Überspringen geht weiterhin ab Sekunde 3.
+- **Ton braucht einen Tipp:** Browser spielen Ton erst nach einer Berührung ab. Am Anfang ist das der Tipp auf die
+  Karte; beim Neuladen mitten im Ablauf und im Spielesaal fragt deshalb ein Start-Bildschirm nach einem Tipp.
 - **Kein Service Worker:** Ein Cache könnte am Geburtstagsmorgen eine veraltete Version zeigen.
 - **Eigene Musik, keine fremde:** Alles entsteht zur Laufzeit per Web Audio (`src/audio/music.js`), es gibt keine
   Audiodateien und keine fremden Melodien. Der Trailer hat einen auskomponierten Vorspann, der sich Szene für Szene
-  steigert (ein Takt = eine Szene). Danach läuft leise Hintergrundmusik in sechs Stimmungen: ruhig (Story, Rahmen,
+  steigert (jede Szene dauert eine feste Zahl Takte). Danach läuft leise Hintergrundmusik in sechs Stimmungen: ruhig (Story, Rahmen,
   Spielesaal), nachdenklich (Meowdoku, Wimmelbild, Wordle), treibend (Runner, Siebenmeter), Show (Lacher wischen),
   Herzklopfen (Finale), Feier (Konfetti, Gutschein). Unter großen Effekten wird sie kurz leiser. Der Stumm-Schalter
   oben rechts gilt für Musik und Effekte.

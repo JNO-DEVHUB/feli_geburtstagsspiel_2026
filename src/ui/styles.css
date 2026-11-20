@@ -657,7 +657,7 @@ button {
   background-size: cover;
   background-position: center;
   filter: brightness(0.62) saturate(1.15);
-  animation: ken 2.6s linear both;
+  animation: ken 5.4s linear both;
 }
 .trailer-art {
   position: relative;
@@ -696,7 +696,7 @@ button {
   width: 11em;
   height: 11em;
   margin: -5.5em 0 0 -5.5em;
-  animation: gallop 2.3s linear both;
+  animation: gallop 3.3s linear both;
 }
 .tr-horse {
   position: absolute;
@@ -739,20 +739,20 @@ button {
   font-size: 8em;
   line-height: 1;
   text-align: center;
-  animation: case-shake 0.5s ease-in-out 3;
+  animation: case-shake 0.5s ease-in-out 4;
 }
 .tr-peek {
   position: absolute;
   width: 5.2em;
   bottom: 3.4em;
-  animation: peek 1.9s 0.4s cubic-bezier(0.2, 1.3, 0.4, 1) both;
+  animation: peek 2.4s 0.7s cubic-bezier(0.2, 1.3, 0.4, 1) both;
 }
 .tr-peek.p1 {
   left: 0.4em;
 }
 .tr-peek.p2 {
   right: 0.4em;
-  animation-delay: 0.85s;
+  animation-delay: 1.4s;
 }
 /* Kapitel 3: Lupe sucht */
 .tr-loupe {
@@ -761,7 +761,7 @@ button {
   top: 50%;
   font-size: 7em;
   line-height: 1;
-  animation: search 2.3s ease-in-out both;
+  animation: search 3.3s ease-in-out both;
   filter: drop-shadow(0 0.1em 0.1em #000);
 }
 /* Kapitel 4: Perlen klackern */
@@ -812,7 +812,7 @@ button {
   border: 0.22em solid var(--ink);
   background: radial-gradient(circle at 35% 30%, #fff7b0, #f4d03f 55%, #c79a12);
   box-shadow: inset -0.5em -0.6em 0 rgba(0, 0, 0, 0.15);
-  animation: ball-fly 1.25s 0.2s cubic-bezier(0.2, 0.7, 0.4, 1) both;
+  animation: ball-fly 1.5s 0.5s cubic-bezier(0.2, 0.7, 0.4, 1) both;
 }
 .tr-ball::after {
   content: '';
@@ -833,7 +833,7 @@ button {
   border-radius: 0.6em;
   padding: 0.1em 0.4em 0;
   font: 400 2em var(--display);
-  animation: laugh-fly 2.1s ease-out both;
+  animation: laugh-fly 2.9s ease-out both;
 }
 .tr-laughs b:nth-child(1) {
   left: 8%;
@@ -843,12 +843,12 @@ button {
   left: 44%;
   --rot: 9deg;
   background: var(--gold);
-  animation-delay: 0.25s;
+  animation-delay: 0.4s;
 }
 .tr-laughs b:nth-child(3) {
   left: 70%;
   --rot: 16deg;
-  animation-delay: 0.5s;
+  animation-delay: 0.9s;
   background: none;
   border: 0;
   font-size: 3em;
@@ -856,7 +856,231 @@ button {
 .tr-laughs b:nth-child(4) {
   left: 26%;
   --rot: -6deg;
-  animation-delay: 0.8s;
+  animation-delay: 1.4s;
+}
+/* Zug-Szene: Der ICE fährt ein, die Tür geht auf, alle vier steigen aus */
+.t-train .trailer-art {
+  overflow: hidden;
+}
+.tr-sign {
+  position: absolute;
+  top: 8%;
+  left: 50%;
+  width: 13em;
+  margin-left: -6.5em;
+  background: #1f3f8f;
+  color: #fff;
+  border: 0.18em solid var(--ink);
+  border-radius: 0.5em;
+  padding: 0.35em 0.4em 0.2em;
+  box-shadow: 0 0.3em 0 rgba(0, 0, 0, 0.4);
+  transform-origin: 50% -2em;
+  animation: sign-swing 2.6s ease-in-out infinite;
+}
+.tr-sign::before,
+.tr-sign::after {
+  content: '';
+  position: absolute;
+  top: -2.2em;
+  width: 0.22em;
+  height: 2.2em;
+  background: var(--ink);
+}
+.tr-sign::before {
+  left: 18%;
+}
+.tr-sign::after {
+  right: 18%;
+}
+.tr-sign small {
+  display: block;
+  font: 800 0.7em var(--body);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #cfe0ff;
+  text-shadow: none;
+}
+.tr-sign b {
+  display: block;
+  font: 400 2.5em/1 var(--display);
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  animation: pulse 0.7s 3.6s ease-in-out infinite alternate;
+}
+.tr-platform {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3.4em;
+  background: linear-gradient(#f4d03f 0 0.35em, #8d8478 0.35em 100%);
+  border-top: 0.16em solid var(--ink);
+}
+.tr-train {
+  position: absolute;
+  left: 3%;
+  bottom: 2.9em;
+  width: 46em;
+  height: 11em;
+  animation: train-in 1.75s cubic-bezier(0.12, 0.72, 0.2, 1) both;
+}
+.tr-nose {
+  position: absolute;
+  left: 0;
+  bottom: 1.5em;
+  width: 7.4em;
+  height: 9em;
+  background: linear-gradient(#fff 0 60%, #e8e4dc 100%);
+  border: 0.2em solid var(--ink);
+  border-right: 0;
+  border-radius: 88% 0 0 26% / 100% 0 0 44%;
+  overflow: hidden;
+}
+.tr-nose::before {
+  content: '';
+  position: absolute;
+  left: 30%;
+  top: 14%;
+  width: 80%;
+  height: 34%;
+  background: #22303c;
+  border: 0.16em solid var(--ink);
+  border-radius: 70% 0 0 30% / 100% 0 0 60%;
+}
+.tr-nose::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 62%;
+  height: 0.9em;
+  background: var(--red);
+}
+.tr-body {
+  position: absolute;
+  left: 7.2em;
+  right: 0;
+  bottom: 1.5em;
+  height: 9em;
+  background: linear-gradient(#fff 0 60%, #e8e4dc 100%);
+  border: 0.2em solid var(--ink);
+  border-left: 0;
+}
+.tr-stripe {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 62%;
+  height: 0.9em;
+  background: var(--red);
+}
+.tr-windows {
+  position: absolute;
+  left: 13em;
+  right: 0;
+  top: 1.5em;
+  height: 3em;
+  background: repeating-linear-gradient(90deg, #22303c 0 3.6em, #fff 3.6em 4.5em);
+  border-top: 0.16em solid var(--ink);
+  border-bottom: 0.16em solid var(--ink);
+}
+.tr-door {
+  position: absolute;
+  left: 7.4em;
+  top: 0.8em;
+  width: 4.4em;
+  height: 7.6em;
+  background: #141c24;
+  border: 0.18em solid var(--ink);
+  border-radius: 0.4em;
+  overflow: hidden;
+}
+.tr-door i {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(#fff 0 12%, #9fc3de 12% 48%, #fff 48% 100%);
+  border-right: 0.16em solid var(--ink);
+  animation: door-open 0.45s 1.9s ease-in-out both;
+}
+.tr-ice {
+  position: absolute;
+  left: 2em;
+  top: 1.4em;
+  font: 400 1.9em/1 var(--display);
+  color: var(--red);
+  letter-spacing: 0.06em;
+}
+.tr-wheels {
+  position: absolute;
+  left: 4.5em;
+  right: 0;
+  bottom: 0;
+  height: 2em;
+  background: radial-gradient(circle at 1em 1em, #3b2a22 0 0.85em, transparent 0.9em) 0 0 / 3.2em 2em repeat-x;
+}
+.tr-out {
+  position: absolute;
+  bottom: 0.5em;
+  width: 6.4em;
+  transform-origin: 50% 100%;
+  animation: hop-out 0.6s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+}
+.tr-out.t-feli {
+  left: 5%;
+  --dx: 13.6em;
+}
+.tr-out.t-janni {
+  left: 28%;
+  --dx: 8em;
+}
+.tr-out.t-franks {
+  left: 55%;
+  width: 4.9em;
+  --dx: 2.2em;
+}
+.tr-out.t-findi {
+  left: 76%;
+  width: 4.9em;
+  --dx: -2.9em;
+}
+@keyframes train-in {
+  from {
+    transform: translateX(105%);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes door-open {
+  to {
+    transform: translateX(-102%);
+  }
+}
+@keyframes hop-out {
+  0% {
+    transform: translate(var(--dx, 0), -4.2em) scale(0.15);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  60% {
+    transform: translate(calc(var(--dx, 0) * 0.25), -6.5em) scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes sign-swing {
+  0%,
+  100% {
+    transform: rotate(-2.5deg);
+  }
+  50% {
+    transform: rotate(2.5deg);
+  }
 }
 @keyframes slam {
   from {
