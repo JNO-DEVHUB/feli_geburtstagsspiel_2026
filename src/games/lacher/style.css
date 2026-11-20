@@ -1,1 +1,195 @@
-/* Stile für das Spiel lacher */
+/* Stile für das Spiel lacher (Kapitel 6 „Showtime!“). Gezeichnet wird im Canvas, hier steht nur die Kopfzeile. */
+.g-lacher {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: none;
+}
+
+/* Scheinwerfer-Kegel: schwenken leicht über die Bühne, liegen unter dem Canvas */
+.g-lacher-cone {
+  position: absolute;
+  top: -3%;
+  left: 16%;
+  width: 48%;
+  height: 108%;
+  margin-left: -24%;
+  pointer-events: none;
+  transform-origin: 50% 0;
+  clip-path: polygon(44% 0, 56% 0, 100% 100%, 0 100%);
+  background: linear-gradient(to bottom, rgba(255, 150, 230, 0.2), rgba(255, 150, 230, 0));
+  animation: g-lacher-sway-a 7.8s ease-in-out infinite alternate;
+  will-change: transform;
+}
+.g-lacher-cone.b {
+  left: 84%;
+  background: linear-gradient(to bottom, rgba(255, 244, 200, 0.22), rgba(255, 244, 200, 0));
+  animation-name: g-lacher-sway-b;
+  animation-duration: 9.4s;
+}
+@keyframes g-lacher-sway-a {
+  from {
+    transform: rotate(-28deg);
+  }
+  to {
+    transform: rotate(-6deg);
+  }
+}
+@keyframes g-lacher-sway-b {
+  from {
+    transform: rotate(6deg);
+  }
+  to {
+    transform: rotate(28deg);
+  }
+}
+
+/* Kopfzeile: Punkte | Zeit | Tomaten. Rechts bleiben 3.4em für den Stumm-Schalter frei. */
+.g-lacher-hud {
+  position: absolute;
+  top: calc(0.55em + env(safe-area-inset-top, 0px));
+  left: 0.6em;
+  right: 3.4em;
+  height: 2.3em;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  pointer-events: none;
+}
+.g-lacher-score {
+  flex: none;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  min-width: 4.7em;
+  padding: 0.36em 0.6em 0.16em;
+  border: 0.1em solid var(--ink);
+  border-radius: 999px;
+  background: var(--cream);
+  box-shadow: 0 0.1em 0 var(--ink);
+  font: 400 1.3em/1 var(--display);
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.g-lacher-score b {
+  font-weight: 400;
+  color: var(--orange);
+}
+.g-lacher-score span {
+  font-size: 0.78em;
+  white-space: pre;
+}
+.g-lacher-hud.safe .g-lacher-score {
+  background: var(--gold);
+}
+.g-lacher-hud.safe .g-lacher-score b {
+  color: var(--ink);
+}
+.g-lacher-hud.safe .g-lacher-score span::after {
+  content: ' ✓';
+  color: var(--green);
+}
+.g-lacher-score.bump {
+  animation: g-lacher-bump 0.22s ease-out;
+}
+
+.g-lacher-time {
+  flex: 1;
+  position: relative;
+  height: 1.55em;
+  border: 0.13em solid var(--ink);
+  border-radius: 999px;
+  background: rgba(40, 24, 16, 0.72);
+  box-shadow: 0 0.13em 0 var(--ink);
+  overflow: hidden;
+}
+.g-lacher-time i {
+  position: absolute;
+  inset: 0;
+  background: var(--orange);
+  transform-origin: left center;
+  will-change: transform;
+}
+.g-lacher-time.low i {
+  background: var(--red);
+}
+.g-lacher-hud.safe .g-lacher-time i {
+  background: var(--gold);
+}
+.g-lacher-time span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding-top: 0.14em;
+  font: 400 1.05em/1 var(--display);
+  color: #fff;
+  -webkit-text-stroke: 0.16em var(--ink);
+  paint-order: stroke fill;
+}
+.g-lacher-time.low span {
+  animation: pulse 0.5s ease-in-out infinite alternate;
+}
+
+.g-lacher-toms {
+  flex: none;
+  display: flex;
+  gap: 0.05em;
+}
+.g-lacher-tom {
+  width: 1.75em;
+  height: 1.75em;
+}
+.g-lacher-tom svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.g-lacher-tom path {
+  fill: rgba(40, 24, 16, 0.55);
+  stroke: var(--cream);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  stroke-dasharray: 2.6 2.2;
+}
+.g-lacher-tom.on .b {
+  fill: #a8402a;
+  stroke: var(--ink);
+  stroke-width: 2.2;
+  stroke-dasharray: none;
+}
+.g-lacher-tom.on .l {
+  fill: #7c8f2e;
+  stroke: var(--ink);
+  stroke-width: 1.8;
+  stroke-dasharray: none;
+}
+.g-lacher-tom.bump {
+  animation: g-lacher-splat 0.4s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+.g-lacher-hud.safe .g-lacher-toms {
+  opacity: 0.45;
+}
+
+@keyframes g-lacher-bump {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.14);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes g-lacher-splat {
+  0% {
+    transform: scale(2.4) rotate(-20deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
