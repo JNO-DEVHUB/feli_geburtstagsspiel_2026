@@ -160,6 +160,7 @@ export function mountFinale(root, app, { onDone }) {
   // --- Phase 3: Konfettikanone ---
   async function startCannon() {
     phase = 'cannon';
+    audio.setMood(null);
     quiz.classList.add('leaving');
     const cannon = h('div.cannon', { html: CANNON_SVG });
     const spark = h('div.cannon-spark', '✹');
@@ -187,6 +188,7 @@ export function mountFinale(root, app, { onDone }) {
     phase = 'scratch';
     const r = size();
     audio.play('boom');
+    timers.push(setTimeout(() => alive && audio.setMood('party'), 900));
     const ticket = h('div.voucher-scroll.finale-voucher', voucherEl());
     const canvas = h('canvas.scratch');
     const wipe = h('div.scratch-hint', FINALE.wipe);

@@ -7,6 +7,8 @@ import { h, onTap } from './dom.js';
 import { burst } from './fx.js';
 
 const SKIP_AFTER = 3000;
+const BAR = 2500;
+const START = 300;
 
 export function mountTrailer(root, app, { onDone }) {
   const { assets, audio } = app;
@@ -28,6 +30,7 @@ export function mountTrailer(root, app, { onDone }) {
     if (finished) return;
     finished = true;
     timers.forEach(clearTimeout);
+    stopScore();
     onDone();
   };
   const backdrop = (key) => h('div.trailer-backdrop', { style: { backgroundImage: `url("${assets.url(key)}")` } });
@@ -43,28 +46,26 @@ export function mountTrailer(root, app, { onDone }) {
   ];
 
   const scenes = [];
-  scenes.push([2800, () => {
+  // Jede Szene dauert einen Takt der Trailer-Musik (2,5 s), siehe playTrailer in audio/music.js.
+  scenes.push([BAR, () => {
     set('t-presents', headEl(assets, 'janni', 'trailer-janni'), h('p', TRAILER.presents));
-    audio.play('drum');
   }]);
-  scenes.push([3000, () => {
+  scenes.push([BAR, () => {
     set('t-title', h('div.trailer-crown', '👑'), h('h1', TRAILER.title));
-    audio.play('boom');
     const r = screen.getBoundingClientRect();
     burst(screen, r.width / 2, r.height * 0.4, { count: 30, spread: 200 });
     at(500, () => audio.play('sparkle'));
   }]);
   CHAPTERS.forEach((c, i) => {
-    scenes.push([2500, () => {
+    scenes.push([BAR, () => {
       const [el, sounds] = art[i]();
       set('t-chapter c' + i, backdrop(c.bg), h('div.trailer-art', el), h('div.trailer-caption', h('small', `Kapitel ${i + 1}`), h('h2', c.trailer)));
       audio.play('whoosh');
       for (const [name, delay, arg] of sounds) at(delay, () => audio.play(name, arg));
     }]);
   });
-  scenes.push([2200, () => {
+  scenes.push([BAR, () => {
     set('t-line', h('div.trailer-crown', '👑'), h('h2', TRAILER.outro[0]));
-    audio.play('sparkle');
   }]);
   scenes.push([0, () => {
     const go = h('button.btn', TRAILER.button);
@@ -74,11 +75,14 @@ export function mountTrailer(root, app, { onDone }) {
     });
     set('t-line t-end', headEl(assets, 'feli', 'trailer-feli'), h('h2', TRAILER.outro[1]), go);
     skip.hidden = true;
-    audio.play('fanfare');
+    audio.play('sparkle');
+    at(3400, () => audio.setMood('calm'));
   }]);
 
   // Zeitplan relativ zum Start; at() verschiebt sich nicht, wenn eine Szene eigene Timer setzt.
-  let t = 300;
+  audio.setMood(null);
+  const stopScore = audio.playTrailer(START / 1000 - 0.06);
+  let t = START;
   const starts = [];
   for (const [dur, fn] of scenes) {
     starts.push([t, fn]);
@@ -99,6 +103,7 @@ export function mountTrailer(root, app, { onDone }) {
     destroy() {
       finished = true;
       timers.forEach(clearTimeout);
+      if (audio.mood === null) stopScore();
       screen.remove();
     },
   };

@@ -1,14 +1,21 @@
 // Synthetischer Ton ohne Audiodateien (Web Audio), übernommen aus dem Hochzeits-Runner:
-// kurze Soundeffekte und kleine eigene Jingles, keine Musik.
+// Soundeffekte und kleine Jingles hier, die eigene Hintergrundmusik in music.js.
+
+import { createMusic } from './music.js';
 
 const NOTE = (n) => 440 * 2 ** ((n - 69) / 12);
+
+// Große Effekte, unter denen die Musik kurz leiser wird.
+const LOUD = new Set(['boom', 'fanfare', 'win', 'lose', 'tor', 'puff']);
 
 export function createAudio() {
   let ctx = null;
   let master;
+  let out; // gemeinsamer Ausgang für Effekte und Musik (hier greift der Stumm-Schalter)
   let bus;
   let noiseBuf;
   let muted = false;
+  const music = createMusic(() => ctx, () => out);
 
   function ensure() {
     if (!ctx) {
@@ -23,14 +30,18 @@ export function createAudio() {
       master.threshold.value = -14;
       master.ratio.value = 4;
       master.connect(ctx.destination);
+      out = ctx.createGain();
+      out.gain.value = muted ? 0 : 1;
+      out.connect(master);
       bus = ctx.createGain();
-      bus.gain.value = muted ? 0 : 0.9;
-      bus.connect(master);
+      bus.gain.value = 0.9;
+      bus.connect(out);
       noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 0.5, ctx.sampleRate);
       const d = noiseBuf.getChannelData(0);
       for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
     }
-    if (ctx.state !== 'running') ctx.resume().catch(() => {});
+    if (ctx.state !== 'running') ctx.resume().then(() => music.resume()).catch(() => {});
+    else music.resume();
     return true;
   }
 
@@ -176,14 +187,28 @@ export function createAudio() {
     play(name, arg) {
       if (muted || !ensure()) return;
       sfx[name]?.(arg);
+      if (LOUD.has(name)) music.duck(name === 'boom' ? 1.6 : 1);
     },
     get muted() {
       return muted;
     },
     setMuted(on) {
       muted = !!on;
-      if (bus) bus.gain.value = muted ? 0 : 0.9;
+      if (out) out.gain.value = muted ? 0 : 1;
     },
+    // Hintergrundmusik: Stimmung aus music.js ('calm', 'think', 'action', 'show', 'tense', 'party') oder null.
+    setMood(name) {
+      music.setMood(name);
+      if (ctx && ctx.state === 'running') music.resume();
+    },
+    get mood() {
+      return music.mood;
+    },
+    // Trailer-Vorspann starten; Rückgabe: Funktion zum Abbrechen.
+    playTrailer(delay) {
+      return ensure() ? music.playTrailer(delay) : () => {};
+    },
+    duck: (seconds, level) => music.duck(seconds, level),
     suspend() {
       if (ctx && ctx.state === 'running') ctx.suspend().catch(() => {});
     },

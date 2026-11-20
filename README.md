@@ -81,7 +81,7 @@ src/
   content.js         alle Texte (Karte, Trailer, Story, Regeln, Finale, Gutschein)
   assets.js          Bilder laden, Platzhalter für fehlende Dateien, Kopf-Anker
   core/              Zufall mit Seed, Mathe, Spielstand, Rubbel-Raster
-  audio/             synthetische Soundeffekte (Web Audio), keine Audiodateien
+  audio/             synthetische Soundeffekte und eigene Musik (Web Audio), keine Audiodateien
   render/chars.js    Figuren: gezeichneter Comic-Körper plus Fotokopf (DOM und Canvas)
   ui/                Bildschirme: Karte, Trailer, Story, Bilderrahmen, Finale, Gutschein, Spielesaal
   games/<spiel>/     je Spiel logic.js (ohne DOM, getestet), game.js, style.css
@@ -108,7 +108,12 @@ src/
   von ca. 230 KB auf ca. 16 KB). Die Fotoköpfe bekommen dabei saubere Ränder, eine dunkle Comic-Kontur und etwas
   kräftigere Farben. Ein Spiel startet erst, wenn sein Hintergrund geladen ist.
 - **Kein Service Worker:** Ein Cache könnte am Geburtstagsmorgen eine veraltete Version zeigen.
-- **Nur Soundeffekte** und kurze eigene Synth-Jingles, keine durchlaufende Musik, keine fremden Melodien.
+- **Eigene Musik, keine fremde:** Alles entsteht zur Laufzeit per Web Audio (`src/audio/music.js`), es gibt keine
+  Audiodateien und keine fremden Melodien. Der Trailer hat einen auskomponierten Vorspann, der sich Szene für Szene
+  steigert (ein Takt = eine Szene). Danach läuft leise Hintergrundmusik in sechs Stimmungen: ruhig (Story, Rahmen,
+  Spielesaal), nachdenklich (Meowdoku, Wimmelbild, Wordle), treibend (Runner, Siebenmeter), Show (Lacher wischen),
+  Herzklopfen (Finale), Feier (Konfetti, Gutschein). Unter großen Effekten wird sie kurz leiser. Der Stumm-Schalter
+  oben rechts gilt für Musik und Effekte.
 - **Text für verlorene Spiele:** Die SPEC kennt nur die Sieger-Sprüche; für die Niederlage gibt es eigene.
 - **Abstimmung auf ca. 80 % Erfolg**, jeweils per Test mit simulierter Spielerin belegt:
   - Runner: gemütliches Tempo, 15–18 Hindernisse, Kehrmaschine wird angekündigt.

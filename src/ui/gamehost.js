@@ -6,6 +6,9 @@ import { GAMES } from '../games/index.js';
 import { createRng, randomSeed } from '../core/rng.js';
 import { h, onTap } from './dom.js';
 
+// Hintergrundmusik je Spiel (Stimmungen aus audio/music.js)
+const GAME_MOODS = { runner: 'action', meowdoku: 'think', wimmel: 'think', wordle: 'think', handball: 'action', lacher: 'show' };
+
 export function mountGame(root, app, { chapter, onEnd }) {
   const ch = CHAPTERS[chapter];
   const screen = h('div.screen.game-screen', { 'data-game': ch.game });
@@ -33,6 +36,7 @@ export function mountGame(root, app, { chapter, onEnd }) {
   const begin = () => {
     if (game || ended || !howto.isConnected) return;
     howto.remove();
+    app.audio.setMood(GAME_MOODS[ch.game] ?? 'think');
     game = GAMES[ch.game].createGame({ root: stageEl, audio: app.audio, assets: app.assets, rng: createRng(randomSeed()), debug: app.debug, end });
   };
   start.classList.add('loading');

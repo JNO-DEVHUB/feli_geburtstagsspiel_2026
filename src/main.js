@@ -94,6 +94,9 @@ function go(step, opts = {}) {
   const next = () => go(nextStep(step));
   stage.dataset.step = step;
 
+  // Hintergrundmusik je Bildschirm; Karte, Trailer und Spiele steuern sie selbst.
+  const MOOD = { prolog: 'calm', story: 'calm', frame: 'calm', finale: 'tense', voucher: 'party' };
+  if (MOOD[kind]) audio.setMood(MOOD[kind]);
   if (kind === 'card') return mount(mountCard, { onDone: next });
   if (kind === 'trailer') return mount(mountTrailer, { onDone: next });
   if (kind === 'prolog') {
@@ -128,13 +131,17 @@ function go(step, opts = {}) {
 
 function hall() {
   replay = false;
+  audio.setMood('calm');
   current = 'hall';
   stage.dataset.step = 'hall';
   debugPanel?.setStep('hall');
   if (!store.get().firstRunDone) store.update((p) => { p.firstRunDone = true; p.step = 'hall'; });
   mount(mountHall, {
     onPlay: playFromHall,
-    onVoucher: () => mount(mountVoucher, { onDone: hall }),
+    onVoucher: () => {
+      audio.setMood('party');
+      mount(mountVoucher, { onDone: hall });
+    },
     onIntro() {
       replay = true;
       go('card');
@@ -152,6 +159,7 @@ function playFromHall(chapter) {
       const had = store.get().results[chapter] === true;
       store.update((p) => recordResult(p, chapter, won));
       const outcome = won ? (had ? 'again' : 'won') : 'miss';
+      audio.setMood('calm');
       mount(mountFrame, { chapter, outcome, mode: 'hall', onNext: hall, onAgain: () => playFromHall(chapter) });
     },
   });
@@ -168,6 +176,7 @@ function preload(chapter) {
 const api = {
   step: () => current,
   progress: () => store.get(),
+  mood: () => audio.mood,
   go: (step) => go(step, { fresh: true }),
   next: () => go(nextStep(current)),
   prev: () => go(prevStep(current)),

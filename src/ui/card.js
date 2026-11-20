@@ -29,6 +29,7 @@ export function mountCard(root, app, { onDone }) {
     if (open) return;
     open = true;
     audio.unlock();
+    audio.setMood('calm');
     audio.play('flip');
     screen.classList.add('open');
     setTimeout(() => {
