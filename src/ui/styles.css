@@ -713,16 +713,21 @@ button {
 }
 .tr-suitcase {
   position: absolute;
-  inset: auto 0 0;
-  font-size: 8em;
-  line-height: 1;
-  text-align: center;
-  animation: case-shake 0.5s ease-in-out 4;
+  inset: auto 0.5em 0;
+  animation: case-shake 0.2s ease-in-out 3;
+}
+.tr-suitcase .case-lid {
+  animation: lid-open 0.35s 0.65s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+@keyframes lid-open {
+  to {
+    transform: rotate(-72deg);
+  }
 }
 .tr-peek {
   position: absolute;
-  width: 5.2em;
-  bottom: 3.4em;
+  width: 5.4em;
+  bottom: 6.6em;
   animation: peek 2.4s 0.7s cubic-bezier(0.2, 1.3, 0.4, 1) both;
 }
 .tr-peek.p1 {
@@ -1129,10 +1134,17 @@ button {
 }
 @keyframes peek {
   0% {
-    transform: translateY(70%) scale(0.6);
+    transform: translateY(95%) scale(0.6);
     opacity: 0;
   }
-  35%,
+  18% {
+    opacity: 1;
+  }
+  34% {
+    transform: translateY(-22%) scale(1.05);
+    opacity: 1;
+  }
+  46%,
   100% {
     transform: translateY(0) scale(1);
     opacity: 1;
@@ -1259,6 +1271,66 @@ button {
   bottom: 0;
   width: 98%;
   pointer-events: none;
+}
+/* Koffer, aus dem die Kater springen */
+.case-svg {
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+.case-lid {
+  transform-box: view-box;
+  transform-origin: 16px 62px;
+  transition: transform 0.35s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.open .case-lid {
+  transform: rotate(-72deg);
+}
+.story-case {
+  position: absolute;
+  right: 3%;
+  bottom: 6%;
+  width: 50%;
+  transform-origin: 50% 100%;
+  animation: pop-in 0.45s ease-out both;
+}
+.story-case.shake {
+  animation: case-shake 0.19s ease-in-out 4;
+}
+.story-jumper {
+  position: absolute;
+  bottom: 0;
+  width: 27%;
+  transform-origin: 50% 100%;
+  animation: cat-jump 0.8s cubic-bezier(0.3, 0.9, 0.5, 1) both;
+}
+.story-jumper.j0 {
+  left: 45%;
+  --dx: 3.4em;
+}
+.story-jumper.j1 {
+  left: 70%;
+  --dx: -2.6em;
+}
+@keyframes cat-jump {
+  0% {
+    transform: translate(var(--dx, 0), -8.5em) scale(0.25);
+    opacity: 0;
+  }
+  14% {
+    opacity: 1;
+  }
+  52% {
+    transform: translate(calc(var(--dx, 0) * 0.45), -15em) scale(1) rotate(-14deg);
+    opacity: 1;
+  }
+  84% {
+    transform: translate(0, 0) scale(1.1, 0.86);
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
 }
 .story-bubble {
   position: absolute;

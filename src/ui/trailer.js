@@ -8,6 +8,7 @@ import { charEl, headEl } from '../render/chars.js';
 import { h, onTap } from './dom.js';
 import { burst, popWord, shake } from './fx.js';
 import { gespannCanvas } from './gespann.js';
+import { suitcaseSvg } from './props.js';
 
 const SKIP_AFTER = 3000;
 const START = 300;
@@ -53,7 +54,7 @@ export function mountTrailer(root, app, { onDone }) {
       const ride = gespannCanvas(assets, { onStep: () => audio.play('hoof') });
       return [h('div.tr-rider', ride.el), [['wieher', 200]], ride];
     },
-    () => [h('div.tr-case', headEl(assets, 'franks', 'tr-peek p1'), headEl(assets, 'findi', 'tr-peek p2'), h('span.tr-suitcase', '🧳')), [['meow', 800], ['meow', 1500]]],
+    () => [h('div.tr-case', headEl(assets, 'franks', 'tr-peek p1'), headEl(assets, 'findi', 'tr-peek p2'), h('div.tr-suitcase', { html: suitcaseSvg() })), [['flip', 150], ['klack', 650], ['meow', 900], ['meow', 1600]]],
     () => [h('div.tr-loupe', '🔍'), [['ping', 1300], ['ping', 2500]]],
     () => [h('div.tr-beads', ['#F07A1A', '#8E5BD0', '#FFD23F', '#E5484D', '#7CC4F0'].map((c, i) => h('i', { style: { background: c, animationDelay: 0.3 + i * 0.32 + 's' } }, '?'))), [0, 1, 2, 3, 4].map((i) => ['bead', 500 + i * 320, i])],
     () => [h('div.tr-ball'), [['throw', 600], ['tor', 1900]]],

@@ -5,10 +5,11 @@ import { createGespann } from '../games/runner/horse.js';
 import { charEl } from '../render/chars.js';
 import { h } from './dom.js';
 import { popWord } from './fx.js';
+import { suitcaseSvg } from './props.js';
 
 const TYPE_MS = 22;
 
-export function mountStory(root, app, { bg, lines, cast = [], outfits = {}, title = null, kicker = null, onDone }) {
+export function mountStory(root, app, { bg, lines, cast = [], outfits = {}, props = [], title = null, kicker = null, onDone }) {
   const { assets, audio } = app;
   const scene = h('div.screen.story');
   const backdrop = h('div.story-bg', { style: { backgroundImage: `url("${assets.url(bg)}")` } });
@@ -30,6 +31,33 @@ export function mountStory(root, app, { bg, lines, cast = [], outfits = {}, titl
     castBox.append(el);
   };
   cast.forEach(enter);
+
+  // Der Reisekoffer steht von Anfang an im Abteil. Später wackelt er, der Deckel klappt auf,
+  // und die Kater springen im Bogen heraus.
+  const later = [];
+  const suitcase = props.includes('suitcase') ? h('div.story-case', { html: suitcaseSvg() }) : null;
+  if (suitcase) scene.insertBefore(suitcase, janni);
+  function jumpOut(list) {
+    if (!suitcase) return list.forEach(enter);
+    suitcase.classList.add('shake');
+    audio.play('flip');
+    later.push(setTimeout(() => {
+      suitcase.classList.remove('shake');
+      suitcase.classList.add('open');
+      audio.play('klack');
+    }, 750));
+    list.forEach((who, i) => {
+      if (present.has(who)) return;
+      present.add(who);
+      later.push(setTimeout(() => {
+        const el = charEl(assets, who, 'default', { className: `story-jumper j${i}`, headScale: 1.3, headDy: 22 });
+        scene.insertBefore(el, janni);
+        audio.play('meow');
+        const r = scene.getBoundingClientRect();
+        popWord(scene, i ? 'MAU!' : 'MIAU!', r.width * (i ? 0.84 : 0.6), r.height * 0.62, { size: 2, life: 900, rot: i ? 8 : -10 });
+      }, 1000 + i * 480));
+    });
+  }
 
   // Das Hochzeitspferd trabt von rechts ins Bild (mit Feli im Sattel), steigt kurz und bleibt dann stehen.
   // Gezeichnet mit dem Pferd aus dem Runner, gespiegelt, damit es zu Janni schaut.
@@ -88,6 +116,7 @@ export function mountStory(root, app, { bg, lines, cast = [], outfits = {}, titl
   function show(line) {
     for (const who of line.enter ?? []) enter(who);
     if (line.horse) trotIn();
+    if (line.jump) jumpOut(line.jump);
     if (line.sfx) audio.play(line.sfx);
     if (line.note !== undefined) {
       bubble.hidden = true;
@@ -156,6 +185,7 @@ export function mountStory(root, app, { bg, lines, cast = [], outfits = {}, titl
   return {
     destroy() {
       clearInterval(timer);
+      later.forEach(clearTimeout);
       cancelAnimationFrame(horseRaf);
       scene.remove();
     },

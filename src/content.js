@@ -5,7 +5,8 @@
 // Zeilen einer Story-Szene:
 //   { who: 'janni', text }                Sprechblase
 //   { note: '…', word?: 'PLONK!', enter?: ['franks'], sfx?: 'wieher', horse?: true }   Regieanweisung mit optionalem
-//       Comic-Wort, Auftritt von Figuren und dem Hochzeitspferd, das ins Bild trabt
+//       Comic-Wort, Auftritt von Figuren und dem Hochzeitspferd, das ins Bild trabt;
+//       jump?: ['franks', 'findi'] lässt Figuren aus dem Koffer springen (Kapitel braucht props: ['suitcase'])
 
 export const TITLE = 'Felis große Reise';
 
@@ -65,9 +66,10 @@ export const CHAPTERS = [
     trailer: 'Kater an Bord!',
     bg: 'bg:k2',
     cast: [],
+    props: ['suitcase'],
     intro: [
       { who: 'janni', text: 'ICE 508, Wagen 2, Ruhebereich. Endlich Ruhe.' },
-      { note: 'Der Koffer wackelt. Der Reißverschluss geht auf.', word: 'ZIIIP!', sfx: 'meow', enter: ['franks', 'findi'] },
+      { note: 'Der Koffer wackelt. Der Reißverschluss geht auf.', word: 'ZIIIP!', jump: ['franks', 'findi'] },
       { who: 'janni', text: '… Ich hab nicht gesagt, dass ihr mitkommen dürft.' },
       { who: 'janni', text: 'Jetzt brauchen sie Plätze. Aber Kater sind Kater: Jeder will sein eigenes Revier, und keiner will den anderen sehen. Nicht mal diagonal.' },
     ],
