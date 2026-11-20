@@ -1,0 +1,12 @@
+{
+  "name": "Felis große Reise 👑",
+  "short_name": "Felis Reise",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFF4E2",
+  "theme_color": "#F07A1A",
+  "lang": "de",
+  "icons": [{ "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

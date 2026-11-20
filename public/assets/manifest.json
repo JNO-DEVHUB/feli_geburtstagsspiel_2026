@@ -1,0 +1,19 @@
+{
+  "_info": "Assets für Felis Geburtstagsspiel. Köpfe sind freigestellte PNGs 512x512, Kinn unten am Bildrand. Anker = Halsansatz relativ zur Bildgröße.",
+  "chars": {
+    "feli":   { "file": "chars/feli_head.png",   "neck": [0.47, 0.98], "note": "inkl. Krone – Krone nimmt oberes Drittel ein, Gesicht sitzt tiefer" },
+    "janni":  { "file": "chars/janni_head.png",  "neck": [0.50, 0.98] },
+    "franks": { "file": "chars/franks_head.png", "neck": [0.50, 0.95], "note": "rot-oranger Kater, Felis Liebling" },
+    "findi":  { "file": "chars/findi_head.png",  "neck": [0.50, 0.95], "note": "grau getigert mit weiß" }
+  },
+  "bg": {
+    "card": "bg/card.jpg",
+    "k1": "bg/k1_berlin.jpg",
+    "k2": "bg/k2_ice.jpg",
+    "k3_wimmel": "bg/k3_hamburg_wimmel.jpg",
+    "k4": "bg/k4_zug_abend.jpg",
+    "k5": "bg/k5_halle.jpg",
+    "k6": "bg/k6_buehne.jpg"
+  },
+  "puzzle": { "file": "puzzle/puzzle_final.jpg", "grid": [2, 3], "orientation": "portrait" }
+}
