@@ -1,1 +1,111 @@
-/* Stile für das Spiel runner */
+/* Stile für das Spiel runner (Kapitel 1: Im Galopp zum Südkreuz) */
+
+/* Kopfzeile: Herzen, Leckerli-Zähler, Fortschrittsbalken mit Zug am Ende */
+.g-runner .hud {
+  gap: 0.45em;
+}
+.g-runner .hud-mid {
+  flex: 0 0 auto;
+  min-width: 2.9em;
+  text-align: left;
+  font-size: 0.92em;
+  white-space: nowrap;
+}
+.g-runner .hud-bar {
+  flex: 1 1 auto;
+  height: 0.66em;
+}
+.g-runner .hud-bar i {
+  transition: none;
+}
+.g-runner-train {
+  flex: 0 0 auto;
+  margin-left: -0.3em;
+  font-size: 1.05em;
+  line-height: 1;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+  filter: drop-shadow(0.05em 0.07em 0 var(--ink));
+}
+
+/* Hinweise: „Tippen = springen!“, „Doppelsprung!“ */
+.g-runner-hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(3.3em + env(safe-area-inset-top, 0px));
+  z-index: 9;
+  text-align: center;
+  font: 400 2em/1 var(--display);
+  letter-spacing: 0.03em;
+  color: #fff;
+  -webkit-text-stroke: 0.09em var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 0.06em 0.08em 0 var(--ink);
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity 0.18s,
+    transform 0.25s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+.g-runner-hint.on {
+  opacity: 1;
+  transform: scale(1);
+  animation: g-runner-nudge 0.5s ease-in-out 0.25s infinite alternate;
+}
+
+/* Warnschild am rechten Rand: Kehrmaschine naht */
+.g-runner-warn {
+  position: absolute;
+  right: 0.7em;
+  width: 3.3em;
+  height: 3.3em;
+  z-index: 9;
+  display: grid;
+  place-items: center;
+  background: var(--gold);
+  border: 0.24em solid var(--ink);
+  border-radius: 0.5em;
+  box-shadow: 0.16em 0.2em 0 rgba(59, 42, 34, 0.45);
+  transform: rotate(45deg) scale(0);
+  pointer-events: none;
+  opacity: 0;
+}
+.g-runner-warn b {
+  transform: rotate(-45deg);
+  font: 400 2.5em/1 var(--display);
+  color: var(--red);
+  -webkit-text-stroke: 0.06em var(--ink);
+  paint-order: stroke fill;
+  padding-top: 0.12em;
+}
+.g-runner-warn.on {
+  opacity: 1;
+  animation: g-runner-warn 0.4s ease-in-out infinite alternate;
+}
+
+@keyframes g-runner-nudge {
+  from {
+    transform: scale(1) rotate(-2deg);
+  }
+  to {
+    transform: scale(1.08) rotate(2deg);
+  }
+}
+@keyframes g-runner-warn {
+  from {
+    transform: rotate(45deg) scale(0.92);
+  }
+  to {
+    transform: rotate(45deg) scale(1.14);
+  }
+}
+
+/* Banner etwas höher, damit Gespann und Bahnhofsschild sichtbar bleiben */
+.g-runner .game-banner {
+  grid-template-rows: 22% auto 1fr;
+}
+.g-runner .game-banner span {
+  grid-row: 2;
+}
