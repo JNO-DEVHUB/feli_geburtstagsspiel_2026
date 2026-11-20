@@ -71,6 +71,7 @@ try {
         await tapThrough('story');
         await waitStep(`game:${c}`);
         await page.reload();
+        await page.click('.splash'); // Start-Tipp nach dem Neuladen (gibt den Ton frei)
         await waitStep(`story:${c}`);
         const results = await page.evaluate(() => window.__feli.progress().results);
         if (results[c] !== null) fail('Neuladen im Spiel hat ein Ergebnis gespeichert');
@@ -92,6 +93,9 @@ try {
     if (c === 3) {
       // Neuladen am Bilderrahmen: Ergebnis bleibt, kein zweiter Versuch.
       await page.reload();
+      await page.waitForSelector('.splash');
+      if (c === 3) await shot('start-tipp');
+      await page.click('.splash');
       await waitStep(`frame:${c}`);
       await page.waitForSelector('.frame-actions:not(.waiting)');
     }
@@ -154,7 +158,22 @@ try {
 
   // Zweites Öffnen ohne Debug: direkt im Spielesaal, Debug-Leiste unsichtbar.
   await page.goto(origin);
+  await page.click('.splash');
   await page.waitForSelector('.hall');
+  // Reset-Knopf oben links: Rückfrage, dann zurück zur Geburtstagskarte mit leerem Spielstand.
+  await page.click('.reset');
+  await page.waitForSelector('.confirm');
+  await shot('reset-rueckfrage');
+  await page.click('.confirm .btn.ghost');
+  if (await page.locator('.confirm').count()) fail('Rückfrage schließt nicht');
+  await page.click('.reset');
+  await page.click('.confirm .btn:not(.ghost)');
+  await page.waitForSelector('.card-screen');
+  const fresh = await page.evaluate(() => JSON.parse(window.localStorage.getItem('felis-reise:v1')));
+  if (fresh.firstRunDone || fresh.step !== 'card' || fresh.results.some((r) => r !== null)) fail('Reset hat den Spielstand nicht geleert: ' + JSON.stringify(fresh));
+  await page.reload();
+  await page.waitForSelector('.card-screen');
+  if (await page.locator('.splash').count()) fail('Start-Tipp vor der Karte');
   if (await page.locator('.debug').count()) fail('Debug-Leiste ohne ?debug=1 sichtbar');
   const title = await page.title();
   if (title !== 'Felis große Reise 👑') fail('Titel falsch: ' + title);

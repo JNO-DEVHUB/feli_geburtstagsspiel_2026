@@ -8,7 +8,7 @@ import './ui/styles.css';
 
 import { HEAD_KEYS, FILES, createAssets } from './assets.js';
 import { createAudio } from './audio/audio.js';
-import { CHAPTERS, PROLOG, ROTATE } from './content.js';
+import { CHAPTERS, PROLOG, RESET, RESUME, ROTATE } from './content.js';
 import { createProgressStore, recordResult } from './core/progress.js';
 import { STEPS, nextStep, parseStep, prevStep, resumeStep } from './flow.js';
 import { mountCard } from './ui/card.js';
@@ -28,7 +28,8 @@ const debug = params.get('debug') === '1';
 const stage = h('div.stage');
 const layer = h('div.layer');
 const mute = h('button.mute', { 'aria-label': 'Ton an/aus' });
-stage.append(layer, mute, h('div.rotate', h('span', '📱'), ROTATE));
+const resetBtn = h('button.reset', { 'aria-label': 'Von vorn beginnen' }, '↺');
+stage.append(layer, mute, resetBtn, h('div.rotate', h('span', '📱'), ROTATE));
 document.getElementById('app').append(stage);
 
 const store = createProgressStore();
@@ -59,8 +60,8 @@ onTap(mute, () => {
   paintMute();
   audio.play('tap');
 });
-// iOS gibt den Ton erst bei einer echten Nutzergeste frei (touchend/click), Android schon bei pointerdown.
-for (const type of ['pointerdown', 'touchend', 'click']) window.addEventListener(type, () => audio.unlock(), { capture: true, passive: true });
+// Browser geben den Ton erst nach einer echten Nutzergeste frei (je nach Gerät pointerup, touchend oder click).
+for (const type of ['pointerdown', 'pointerup', 'touchend', 'click']) window.addEventListener(type, () => audio.unlock(), { capture: true, passive: true });
 document.addEventListener('visibilitychange', () => (document.hidden ? audio.suspend() : audio.resume()));
 
 // Kein Pinch-Zoom der Seite, kein Kontextmenü bei langem Druck. Den Doppeltipp-Zoom schaltet
@@ -172,6 +173,31 @@ function preload(chapter) {
   assets.load(keys);
 }
 
+// --- Von vorn beginnen (Knopf oben links, mit Rückfrage) ---
+function startOver() {
+  store.reset();
+  replay = false;
+  audio.setMood(null);
+  go('card');
+}
+onTap(resetBtn, () => {
+  audio.play('tap');
+  if (stage.querySelector('.confirm')) return;
+  const yes = h('button.btn', RESET.yes);
+  const no = h('button.btn.ghost', RESET.no);
+  const box = h('div.confirm', h('div.confirm-card', h('h2', RESET.title), h('p', RESET.text), h('div.confirm-actions', no, yes)));
+  stage.append(box);
+  onTap(no, () => {
+    audio.play('tap');
+    box.remove();
+  });
+  onTap(yes, () => {
+    audio.play('tap');
+    box.remove();
+    startOver();
+  });
+});
+
 // --- Debug ---
 const api = {
   step: () => current,
@@ -182,11 +208,7 @@ const api = {
   prev: () => go(prevStep(current)),
   win: () => screen?.forceEnd?.(true),
   lose: () => screen?.forceEnd?.(false),
-  reset() {
-    store.reset();
-    replay = false;
-    go('card');
-  },
+  reset: startOver,
 };
 if (debug) {
   debugPanel = mountDebug(stage, api);
@@ -199,11 +221,24 @@ if (debug) {
   await Promise.race([Promise.all([assets.loadManifest(), assets.load([...HEAD_KEYS, 'bg:card', 'puzzle'])]), new Promise((r) => setTimeout(r, 10000))]);
   stage.classList.remove('loading');
   const wanted = debug && params.get('go');
-  if (wanted && STEPS.includes(wanted)) go(wanted);
-  else {
-    const step = resumeStep(store.get());
+  const step = wanted && STEPS.includes(wanted) ? wanted : resumeStep(store.get());
+  const begin = () => {
     if (step === 'hall') hall();
-    else go(step, { fresh: false });
+    else go(step, { fresh: step === wanted });
+  };
+  // Die Karte ist selbst der erste Tipp. Bei jedem anderen Einstieg (Neuladen, Spielesaal) fragt ein
+  // Start-Bildschirm nach einem Tipp: Erst dann darf der Browser Ton und Musik abspielen.
+  // Debug-Sprünge (?debug=1&go=…) starten direkt, dort entsperrt der erste Tipp im Bildschirm den Ton.
+  if (step === 'card' || step === wanted) begin();
+  else {
+    const splash = h('button.splash', h('span.splash-crown', '👑'), h('b', RESUME.title), h('span.splash-tap', RESUME.tap));
+    stage.append(splash);
+    onTap(splash, () => {
+      audio.unlock();
+      audio.play('tap');
+      splash.remove();
+      begin();
+    });
   }
   // Rest in Ruhe nachladen, damit spätere Kapitel ohne Wartezeit starten.
   for (const key of Object.keys(FILES)) await assets.load([key]);

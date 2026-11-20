@@ -183,6 +183,97 @@ button {
   box-shadow: 0 0.12em 0 var(--ink);
 }
 
+.reset {
+  position: absolute;
+  top: calc(0.55em + env(safe-area-inset-top, 0px));
+  left: 0.55em;
+  width: 2.3em;
+  height: 2.3em;
+  border-radius: 50%;
+  border: 0.13em solid var(--ink);
+  background: #fff;
+  color: var(--ink);
+  font: 800 1.15em/1 var(--body);
+  display: grid;
+  place-items: center;
+  padding: 0 0 0.1em;
+  z-index: 60;
+  box-shadow: 0 0.12em 0 var(--ink);
+  opacity: 0.85;
+}
+.stage[data-playing] .reset {
+  display: none;
+}
+.confirm {
+  position: absolute;
+  inset: 0;
+  z-index: 85;
+  background: rgba(40, 24, 16, 0.7);
+  display: grid;
+  place-items: center;
+  padding: 8%;
+}
+.confirm-card {
+  background: var(--cream);
+  border: 0.2em solid var(--ink);
+  border-radius: 1.2em;
+  box-shadow: 0.3em 0.4em 0 var(--orange);
+  padding: 1.2em 1.1em 1.3em;
+  text-align: center;
+  animation: pop-in 0.3s ease-out;
+}
+.confirm-card h2 {
+  font: 400 1.8em/1 var(--display);
+  color: var(--orange);
+  margin: 0 0 0.4em;
+  -webkit-text-stroke: 0.03em var(--ink);
+  text-shadow: 0.05em 0.06em 0 var(--ink);
+}
+.confirm-card p {
+  margin: 0 0 1.1em;
+}
+.confirm-actions {
+  display: flex;
+  gap: 0.6em;
+  justify-content: center;
+}
+.confirm-actions .btn {
+  font-size: 1.1em;
+}
+.splash {
+  appearance: none;
+  position: absolute;
+  inset: 0;
+  z-index: 55;
+  border: 0;
+  background: radial-gradient(circle at 50% 38%, #ffb35c, var(--orange) 55%, #cf5e0a);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.5em;
+  text-align: center;
+}
+.splash-crown {
+  font-size: 5em;
+  line-height: 1;
+  animation: pulse 1.1s ease-in-out infinite alternate;
+}
+.splash b {
+  font: 400 2.6em/1 var(--display);
+  -webkit-text-stroke: 0.04em var(--ink);
+  text-shadow: 0.05em 0.07em 0 var(--ink);
+  padding: 0 0.5em;
+}
+.splash-tap {
+  font-weight: 800;
+  background: rgba(59, 42, 34, 0.35);
+  padding: 0.35em 1em;
+  border-radius: 999px;
+  margin-top: 1em;
+  animation: pulse 0.8s ease-in-out infinite alternate;
+}
+
 .bubble {
   position: relative;
   background: #fff;
@@ -922,8 +1013,8 @@ button {
 }
 .story-title {
   position: absolute;
-  top: calc(1em + env(safe-area-inset-top, 0px));
-  left: 0.9em;
+  top: calc(0.75em + env(safe-area-inset-top, 0px));
+  left: 2.3em;
   right: 3.6em;
   font: 400 1.55em/1 var(--display);
   color: #fff;

@@ -36,6 +36,7 @@ export function mountGame(root, app, { chapter, onEnd }) {
   const begin = () => {
     if (game || ended || !howto.isConnected) return;
     howto.remove();
+    app.stage.dataset.playing = '1'; // blendet den Reset-Knopf aus, solange gespielt wird (dort sitzt die Spielanzeige)
     app.audio.setMood(GAME_MOODS[ch.game] ?? 'think');
     game = GAMES[ch.game].createGame({ root: stageEl, audio: app.audio, assets: app.assets, rng: createRng(randomSeed()), debug: app.debug, end });
   };
@@ -57,6 +58,7 @@ export function mountGame(root, app, { chapter, onEnd }) {
     forceEnd: end,
     destroy() {
       ended = true;
+      delete app.stage.dataset.playing;
       try {
         game?.destroy?.();
       } catch (err) {

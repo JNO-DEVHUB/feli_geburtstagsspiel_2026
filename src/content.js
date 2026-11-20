@@ -198,3 +198,12 @@ export const HALL = {
 };
 
 export const ROTATE = 'Bitte Handy drehen';
+
+export const RESUME = { title: 'Felis große Reise', tap: 'Tippen und weiter geht’s 🔊' };
+
+export const RESET = {
+  title: 'Ganz von vorn?',
+  text: 'Dann geht es zurück zur Geburtstagskarte, und alle Puzzleteile sind wieder weg.',
+  yes: 'Ja, von vorn',
+  no: 'Lieber nicht',
+};
