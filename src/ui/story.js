@@ -7,7 +7,7 @@ import { popWord } from './fx.js';
 
 const TYPE_MS = 22;
 
-export function mountStory(root, app, { bg, lines, cast = [], title = null, kicker = null, onDone }) {
+export function mountStory(root, app, { bg, lines, cast = [], outfits = {}, title = null, kicker = null, onDone }) {
   const { assets, audio } = app;
   const scene = h('div.screen.story');
   const backdrop = h('div.story-bg', { style: { backgroundImage: `url("${assets.url(bg)}")` } });
@@ -25,7 +25,7 @@ export function mountStory(root, app, { bg, lines, cast = [], title = null, kick
   const enter = (who) => {
     if (present.has(who)) return;
     present.add(who);
-    const el = charEl(assets, who, who === 'feli' ? 'braut' : 'default', who === 'feli' ? { className: 'story-guest' } : { className: 'story-guest', headScale: 1.3, headDy: 22 });
+    const el = charEl(assets, who, outfits[who] ?? (who === 'feli' ? 'braut' : 'default'), who === 'feli' ? { className: 'story-guest' } : { className: 'story-guest', headScale: 1.3, headDy: 22 });
     castBox.append(el);
   };
   cast.forEach(enter);

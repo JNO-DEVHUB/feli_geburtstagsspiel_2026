@@ -36,7 +36,7 @@ export function mountGame(root, app, { chapter, onEnd }) {
     game = GAMES[ch.game].createGame({ root: stageEl, audio: app.audio, assets: app.assets, rng: createRng(randomSeed()), debug: app.debug, end });
   };
   start.classList.add('loading');
-  Promise.race([app.assets.load([ch.bg, ...HEAD_KEYS]), new Promise((r) => setTimeout(r, 8000))]).then(() => {
+  Promise.race([app.assets.load([ch.bg, ...HEAD_KEYS]), new Promise((r) => setTimeout(r, 20000))]).then(() => {
     ready = true;
     start.classList.remove('loading');
     if (wanted) begin();

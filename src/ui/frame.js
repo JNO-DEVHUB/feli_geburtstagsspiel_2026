@@ -1,4 +1,4 @@
-// Bilderrahmen: goldener Rahmen mit dem 2×3-Puzzle, daneben die sechs Hinweisfelder.
+// Bilderrahmen: großer goldener Rahmen mit dem 2×3-Puzzle, darunter die sechs Hinweis-Chips.
 // Nach jedem Spiel fliegt das gewonnene Teil ein oder das verlorene zerbröselt.
 
 import { CHAPTERS, FRAME, HALL } from '../content.js';

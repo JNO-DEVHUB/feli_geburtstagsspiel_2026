@@ -18,6 +18,25 @@ export const FILES = Object.freeze({
   puzzle: 'puzzle/puzzle_final.jpg',
 });
 
+// Fürs Handy aufbereitete Fassungen (scripts/optimize-assets.mjs): saubere Köpfe mit Comic-Kontur, alles als WebP.
+// Fehlt eine davon, lädt die App das Original aus public/assets/.
+const OPT = Object.freeze({
+  'head:feli': 'opt/chars/feli_head.webp',
+  'head:janni': 'opt/chars/janni_head.webp',
+  'head:franks': 'opt/chars/franks_head.webp',
+  'head:findi': 'opt/chars/findi_head.webp',
+  'bg:card': 'opt/bg/card.webp',
+  'bg:k1': 'opt/bg/k1_berlin.webp',
+  'bg:k2': 'opt/bg/k2_ice.webp',
+  'bg:k3': 'opt/bg/k3_hamburg_wimmel.webp',
+  'bg:k4': 'opt/bg/k4_zug_abend.webp',
+  'bg:k5': 'opt/bg/k5_halle.webp',
+  'bg:k6': 'opt/bg/k6_buehne.webp',
+  puzzle: 'opt/puzzle/puzzle_final.webp',
+});
+// Die aufbereiteten Köpfe haben ringsum 5 % Rand für die Kontur (HEAD_PAD in scripts/optimize-assets.mjs).
+export const HEAD_PAD = 0.05;
+
 // Halsansatz relativ zur Bildgröße (aus public/assets/manifest.json, dort zur Laufzeit überschreibbar).
 const NECK = { feli: [0.47, 0.98], janni: [0.5, 0.98], franks: [0.5, 0.95], findi: [0.5, 0.95] };
 
@@ -128,22 +147,33 @@ export function createAssets() {
   function entry(key) {
     let e = state.get(key);
     if (e) return e;
-    e = { img: null, ok: false, done: false, fallback: null, promise: null };
+    e = { img: null, ok: false, done: false, fallback: null, promise: null, src: null, opt: !!OPT[key] };
     e.promise = new Promise((resolve) => {
-      if (!FILES[key]) return resolve();
-      const img = new Image();
-      img.decoding = 'async';
-      img.onload = () => {
-        e.img = img;
-        e.ok = true;
+      if (!FILES[key]) {
         e.done = true;
-        resolve();
+        return resolve();
+      }
+      const tryLoad = (src, isOpt) => {
+        const img = new Image();
+        img.decoding = 'async';
+        img.onload = () => {
+          e.img = img;
+          e.ok = true;
+          e.done = true;
+          e.src = src;
+          e.opt = isOpt;
+          resolve();
+        };
+        img.onerror = () => {
+          if (isOpt) return tryLoad(BASE + FILES[key], false);
+          e.opt = false;
+          e.done = true;
+          resolve();
+        };
+        img.src = src;
       };
-      img.onerror = () => {
-        e.done = true;
-        resolve();
-      };
-      img.src = BASE + FILES[key];
+      if (OPT[key]) tryLoad(OPT[key], true);
+      else tryLoad(BASE + FILES[key], false);
     });
     state.set(key, e);
     return e;
@@ -166,11 +196,19 @@ export function createAssets() {
     // URL für <img>/CSS/SVG: echte Datei, sonst Platzhalter als Daten-URL.
     url(key) {
       const e = entry(key);
-      if (e.ok || !e.done) return BASE + FILES[key];
+      if (e.ok) return e.src;
+      if (!e.done) return OPT[key] ?? BASE + FILES[key];
       return fallback(key).toDataURL();
     },
     ok: (key) => entry(key).ok,
-    neck: (who) => neck[who] ?? [0.5, 0.97],
+    // Halsansatz im tatsächlich geladenen Bild (aufbereitete Köpfe sitzen wegen des Rands etwas kleiner im Bild).
+    neck(who) {
+      const [x, y] = neck[who] ?? [0.5, 0.97];
+      if (!entry('head:' + who).opt) return [x, y];
+      return [HEAD_PAD + x * (1 - 2 * HEAD_PAD), HEAD_PAD + y * (1 - 2 * HEAD_PAD)];
+    },
+    // Faktor, um den ein Kopfbild größer gezeichnet werden muss, damit der Kopf selbst gleich groß bleibt.
+    headZoom: (who) => (entry('head:' + who).opt ? 1 / (1 - 2 * HEAD_PAD) : 1),
     // Kopf-Anker aus manifest.json nachladen (optional, Fehler werden ignoriert).
     async loadManifest() {
       try {

@@ -103,7 +103,7 @@ function go(step, opts = {}) {
     const ch = CHAPTERS[chapter];
     preload(chapter + 1);
     if (!ch.intro.length) return go(`game:${chapter}`);
-    return mount(mountStory, { bg: ch.bg, lines: ch.intro, cast: ch.cast, title: ch.title, kicker: `Kapitel ${chapter + 1}`, onDone: next });
+    return mount(mountStory, { bg: ch.bg, lines: ch.intro, cast: ch.cast, outfits: ch.outfits, title: ch.title, kicker: `Kapitel ${chapter + 1}`, onDone: next });
   }
   if (kind === 'game') {
     return mount(mountGame, {

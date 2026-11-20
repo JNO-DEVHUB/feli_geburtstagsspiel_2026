@@ -1007,13 +1007,13 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.7em;
+  gap: 0.55em;
   padding-left: 4%;
   padding-right: 4%;
 }
 .frame-title {
-  margin-top: 0.75em;
-  font: 400 1.6em/1 var(--display);
+  margin-top: 0.7em;
+  font: 400 1.45em/1 var(--display);
   color: var(--gold);
   text-align: center;
   padding: 0 2.4em;
@@ -1025,14 +1025,15 @@ button {
 }
 .frame-wrap {
   display: flex;
-  align-items: stretch;
-  gap: 0.6em;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55em;
   width: 100%;
-  justify-content: center;
 }
 .frame-box {
   flex: 0 0 auto;
-  width: 60%;
+  width: var(--frame-w, 17.5em);
+  max-width: 100%;
   padding: 0.55em;
   background: linear-gradient(135deg, #f6d365, #c8932a 30%, #f9e08a 50%, #b07d1c 75%, #f1c94f);
   border: 0.14em solid var(--ink);
@@ -1059,27 +1060,27 @@ button {
   filter: drop-shadow(0 0.5em 0.5em rgba(0, 0, 0, 0.5));
 }
 .hints {
-  flex: 1 1 0;
   display: grid;
-  grid-template-rows: repeat(6, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 0.35em;
-  min-width: 0;
+  width: 100%;
 }
 .hint {
   display: flex;
   align-items: center;
-  gap: 0.45em;
-  padding: 0 0.5em;
+  gap: 0.35em;
+  padding: 0 0.35em;
+  height: 2.1em;
   border-radius: 0.55em;
   border: 0.12em dashed rgba(255, 244, 226, 0.35);
   color: rgba(255, 244, 226, 0.5);
   min-width: 0;
 }
 .hint i {
-  font: 400 0.95em var(--display);
+  font: 400 0.85em var(--display);
   font-style: normal;
-  width: 1.5em;
-  height: 1.5em;
+  width: 1.45em;
+  height: 1.45em;
   flex: 0 0 auto;
   display: grid;
   place-items: center;
@@ -1088,7 +1089,7 @@ button {
   padding-top: 0.12em;
 }
 .hint b {
-  font: 400 1.02em/1 var(--display);
+  font: 400 0.95em/1 var(--display);
   letter-spacing: 0.03em;
   white-space: nowrap;
   padding-top: 0.15em;
@@ -1113,23 +1114,17 @@ button {
   position: relative;
   flex: 1 1 0;
   width: 100%;
-  min-height: 0;
+  min-height: 6.5em;
 }
 .frame-janni {
   position: absolute;
-  left: -6%;
-  bottom: -4.6em;
-  width: 44%;
-  max-height: 135%;
-}
-.frame-janni .char-svg {
-  max-height: 21em;
-  width: auto;
-  max-width: 100%;
+  left: -5%;
+  top: -0.4em;
+  width: 36%;
 }
 .frame-bubble {
   position: absolute;
-  left: 37%;
+  left: 31%;
   right: 0;
   top: 0.3em;
   transition: opacity 0.3s;
@@ -1334,9 +1329,8 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.6em;
-  padding: calc(3.3em + env(safe-area-inset-top, 0px)) 4% calc(1em + env(safe-area-inset-bottom, 0px));
+  gap: 0.5em;
+  padding: calc(3.1em + env(safe-area-inset-top, 0px)) 4% calc(0.9em + env(safe-area-inset-bottom, 0px));
   transition: transform 0.6s ease-in, opacity 0.6s;
 }
 .finale-quiz.leaving {
@@ -1344,18 +1338,21 @@ button {
   opacity: 0;
   pointer-events: none;
 }
+/* Das Puzzle steht groß und mittig; für die Antwortkarten schrumpft es weich nach oben. */
 .finale .frame-box {
-  width: 58%;
+  transform-origin: 50% 0;
+  transition: transform 0.7s cubic-bezier(0.3, 0.1, 0.2, 1), margin-bottom 0.7s cubic-bezier(0.3, 0.1, 0.2, 1);
 }
 .finale-talk {
   position: relative;
   width: 100%;
-  min-height: 6.6em;
+  flex: 0 0 auto;
+  height: 6.9em;
 }
 .finale-janni {
   position: absolute;
   left: -4%;
-  top: -0.6em;
+  top: -0.3em;
   width: 28%;
 }
 .finale-bubble {
@@ -1380,10 +1377,13 @@ button {
 .answers {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.55em;
+  gap: 0.5em;
   width: 100%;
   z-index: 2;
-  transition: opacity 0.4s;
+  animation: rise 0.45s ease-out both;
+}
+.answers[hidden] {
+  display: none;
 }
 .answer {
   appearance: none;
@@ -1393,9 +1393,9 @@ button {
   box-shadow: 0 0.22em 0 var(--ink);
   padding: 0.6em 0.5em;
   font-weight: 800;
-  font-size: 0.97em;
-  line-height: 1.2;
-  min-height: 5em;
+  font-size: 0.95em;
+  line-height: 1.15;
+  min-height: 4.3em;
   transition: transform 0.45s, opacity 0.45s, filter 0.45s;
 }
 .answer.right {
@@ -1788,6 +1788,7 @@ button {
 }
 .hall-sheet .frame-wrap {
   width: 100%;
+  --frame-w: 19em;
 }
 
 /* --- Debug --- */

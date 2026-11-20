@@ -10,7 +10,7 @@ import { wonCount } from '../core/progress.js';
 import { clearedFraction, createScratchGrid, markStroke } from '../core/scratch.js';
 import { charEl, headEl } from '../render/chars.js';
 import { h, onTap } from './dom.js';
-import { CONFETTI, burst, popWord, shake } from './fx.js';
+import { CONFETTI, burst, popWord, shake, sparkle } from './fx.js';
 import { createFrameView } from './frame.js';
 import { voucherEl } from './voucher.js';
 
@@ -36,10 +36,24 @@ export function mountFinale(root, app, { onDone }) {
   const text = h('p.bubble-text');
   const bubble = h('div.bubble.finale-bubble', h('b.bubble-name', 'Janni'), text);
   const janni = charEl(assets, 'janni', 'anzug', { className: 'finale-janni' });
-  const answers = h('div.answers.waiting');
-  const quiz = h('div.finale-quiz', view.el, h('div.finale-talk', janni, bubble), answers);
+  const answers = h('div.answers');
+  answers.hidden = true;
+  const talk = h('div.finale-talk', janni, bubble);
+  const quiz = h('div.finale-quiz', view.el, talk, answers);
   const screen = h('div.screen.finale', quiz);
   root.append(screen);
+
+  // Puzzle so groß wie möglich: 85 % der Breite, begrenzt durch die Höhe (Chips und Janni müssen darunter passen).
+  function sizeFrame() {
+    const em = parseFloat(getComputedStyle(screen).fontSize) || 16;
+    const r = screen.getBoundingClientRect();
+    const img = assets.img('puzzle');
+    const aspect = (img.naturalHeight || img.height) / (img.naturalWidth || img.width);
+    const reserved = (3.1 + 0.9 + 3 * 0.5 + 4.6 + 6.9) * em; // Abstände, Chips, Janni mit Sprechblase
+    const byHeight = (r.height - reserved - 1.4 * em) / aspect + 1.4 * em;
+    view.el.style.setProperty('--frame-w', Math.max(9 * em, Math.min(r.width * 0.85, byHeight)) + 'px');
+  }
+  sizeFrame();
 
   let alive = true;
   let phase = 'puzzle';
@@ -68,9 +82,18 @@ export function mountFinale(root, app, { onDone }) {
         shake(view.box, 3, 160);
         if (!(await later(130))) return;
       }
+      // Das letzte Teil sitzt: kurzer Zoom-Puls und Glitzer über das ganze Bild.
+      view.box.animate?.([{ transform: 'scale(1)' }, { transform: 'scale(1.06)' }, { transform: 'scale(1)' }], { duration: 520, easing: 'ease-in-out' });
+      const br = view.inner.getBoundingClientRect();
+      const sr = size();
+      for (let k = 0; k < 9; k++) {
+        timers.push(setTimeout(() => alive && sparkle(screen, br.left - sr.left + ((k % 3) + 0.5) * (br.width / 3), br.top - sr.top + (Math.floor(k / 3) + 0.5) * (br.height / 3), 5), k * 55));
+      }
       audio.play(mine.length === 6 ? 'fanfare' : 'sparkle');
+      phase = 'assembled';
+      if (!(await later(1100))) return;
     }
-    if (!(await later(fast ? 0 : 500))) return;
+    if (!(await later(fast ? 0 : 300))) return;
     startQuiz();
   }
 
@@ -84,13 +107,22 @@ export function mountFinale(root, app, { onDone }) {
   function startQuiz() {
     phase = 'quiz';
     say(FINALE.question(won));
-    answers.classList.remove('waiting');
+    answers.hidden = false;
     const order = FINALE.answers.map((a) => ({ a, k: Math.random() })).sort((x, y) => x.k - y.k).map((x) => x.a);
     answers.replaceChildren();
     for (const a of order) {
       const card = h('button.answer', a.text);
       onTap(card, () => choose(a, card));
       answers.append(card);
+    }
+    // Platz für die Antwortkarten schaffen: Das Puzzle schrumpft weich nach oben.
+    // Nur der Rahmen schrumpft, die Hinweis-Chips bleiben lesbar.
+    const fh = view.box.offsetHeight;
+    const overflow = quiz.scrollHeight - quiz.clientHeight;
+    if (overflow > 0 && fh > 0) {
+      const scale = Math.max(0.35, (fh - overflow - 4) / fh);
+      view.box.style.transform = `scale(${scale})`;
+      view.box.style.marginBottom = -(fh * (1 - scale)) + 'px';
     }
   }
 
@@ -284,6 +316,7 @@ export function mountFinale(root, app, { onDone }) {
       if (target === 'quiz' && phase === 'puzzle') {
         timers.splice(0).forEach(clearTimeout);
         view.layout();
+        for (const el of view.pieces) if (el) el.style.visibility = '';
         startQuiz();
       }
     },
@@ -291,8 +324,7 @@ export function mountFinale(root, app, { onDone }) {
   };
   if (app.debug) globalThis.__feliFinale = hooks;
 
-  say('…');
-  text.textContent = '';
+  text.textContent = FINALE.lead;
   assemble(false);
 
   return {

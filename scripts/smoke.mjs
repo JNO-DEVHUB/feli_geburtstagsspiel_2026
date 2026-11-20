@@ -99,9 +99,12 @@ try {
   }
 
   await waitStep('finale');
-  await page.waitForTimeout(1500);
-  await shot('finale-puzzle');
-  await page.waitForSelector('.answers:not(.waiting) .answer', { timeout: 12000 });
+  await page.waitForTimeout(250);
+  await shot('finale-puzzle-start');
+  await page.waitForFunction(() => window.__feliFinale?.phase() === 'assembled', null, { timeout: 15000 });
+  await page.screenshot({ path: join(shots, `${String(++n).padStart(2, '0')}-finale-puzzle-gross.png`) });
+  await page.waitForSelector('.answers:not([hidden]) .answer', { timeout: 15000 });
+  await page.waitForTimeout(900);
   await shot('finale-frage');
   await page.locator('.answer', { hasText: 'dritter Kater' }).click();
   await page.waitForTimeout(600);

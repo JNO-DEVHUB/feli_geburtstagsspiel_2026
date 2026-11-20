@@ -83,7 +83,7 @@ function geom(who) {
 // opts.headScale / opts.headDy: Kopf größer bzw. tiefer setzen (z. B. Kater in den Story-Szenen).
 export function headBox(assets, who, opts = {}) {
   const gm = geom(who);
-  const size = gm.head * (HEAD_SCALE[who] ?? 1) * (opts.headScale ?? 1);
+  const size = gm.head * (HEAD_SCALE[who] ?? 1) * (opts.headScale ?? 1) * (assets.headZoom?.(who) ?? 1);
   const [nx, ny] = assets.neck(who);
   return { x: gm.neck[0] - nx * size, y: gm.neck[1] - ny * size + 8 + (opts.headDy ?? 0), size, neck: gm.neck };
 }

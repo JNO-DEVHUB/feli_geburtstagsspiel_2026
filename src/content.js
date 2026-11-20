@@ -112,6 +112,7 @@ export const CHAPTERS = [
     trailer: 'Siebenmeter!',
     bg: 'bg:k5',
     cast: ['feli'],
+    outfits: { feli: 'trikot' },
     intro: [
       { who: 'janni', text: 'Angekommen! Aber vor dem großen Abend: Aufwärmen.' },
       { who: 'janni', text: 'Handballerin bleibt Handballerin. 5 Siebenmeter. Im Tor: ich.' },
@@ -129,6 +130,7 @@ export const CHAPTERS = [
     trailer: 'Showtime!',
     bg: 'bg:k6',
     cast: ['feli'],
+    outfits: { feli: 'show' },
     intro: [
       { who: 'janni', text: 'Der große Abend! Die Halle ist voll, das Licht geht aus, die Stimmung kocht.' },
       { who: 'janni', text: 'Deine Aufgabe: Fang so viele Lacher wie möglich!' },
@@ -150,6 +152,7 @@ export const FRAME = {
 };
 
 export const FINALE = {
+  lead: 'Trommelwirbel! Mal sehen, was du dir erspielt hast …',
   question: (won) => `Sechs Kapitel. ${won === 1 ? 'Ein Puzzleteil' : `${['Null', 'Ein', 'Zwei', 'Drei', 'Vier', 'Fünf', 'Sechs'][won]} Puzzleteile`}. Und jetzt die große Frage, Spatzl: Was ist dein Geschenk?`,
   answers: [
     { text: 'Ein Wochenende in Köln mit großer Comedy-Show', correct: true },

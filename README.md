@@ -61,12 +61,16 @@ npm run smoke
 Deploy: Jeder Push auf `main` baut und veröffentlicht über GitHub Actions auf GitHub Pages
 (Settings → Pages → Source „GitHub Actions“).
 
-Neue Grafiken vom Branch `assets` holen:
+Neue Grafiken vom Branch `assets` holen und fürs Handy aufbereiten (WebP, saubere Köpfe mit Comic-Kontur,
+Ergebnis in `public/opt/`, wird eingecheckt; braucht Playwright mit Chromium):
 
 ```powershell
 git fetch origin assets
 git checkout origin/assets -- public/assets
+node scripts/optimize-assets.mjs
 ```
+
+Die App lädt zuerst die aufbereitete Fassung aus `public/opt/` und fällt sonst auf das Original zurück.
 
 ## Architektur
 
@@ -100,6 +104,9 @@ src/
 - **Anrede „Spatzl“** statt „Königin“ in allen Texten. Die Krone bleibt.
 - **Hinweiswörter erscheinen sofort** im Bilderrahmen (Variante A), auch „KÖLN“ und „COMEDY“. Story, Trailer, Titel
   und Regeln nennen das Ziel nie; das prüft `test/content.test.js`.
+- **Bilder aufbereitet:** Die gelieferten Grafiken werden per Skript verkleinert (gesamt 4,9 MB → 2,3 MB, Köpfe
+  von ca. 230 KB auf ca. 16 KB). Die Fotoköpfe bekommen dabei saubere Ränder, eine dunkle Comic-Kontur und etwas
+  kräftigere Farben. Ein Spiel startet erst, wenn sein Hintergrund geladen ist.
 - **Kein Service Worker:** Ein Cache könnte am Geburtstagsmorgen eine veraltete Version zeigen.
 - **Nur Soundeffekte** und kurze eigene Synth-Jingles, keine durchlaufende Musik, keine fremden Melodien.
 - **Text für verlorene Spiele:** Die SPEC kennt nur die Sieger-Sprüche; für die Niederlage gibt es eigene.

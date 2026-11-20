@@ -154,6 +154,7 @@ export function createGespann(assets) {
 
   function headImg(g, who, nx, ny, size, st) {
     const [ax, ay] = assets.neck(who);
+    size *= assets.headZoom?.(who) ?? 1; // aufbereitete Köpfe haben einen Rand für die Kontur
     g.save();
     g.translate(nx, ny + st.y);
     g.rotate(st.a);
